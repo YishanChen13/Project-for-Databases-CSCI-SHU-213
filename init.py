@@ -21,6 +21,11 @@ def hello():
 def login():
 	return render_template('login.html')
 
+#Define route for register
+@app.route('/registerselect')
+def registerselect():
+	return render_template('register.html')
+
 #Authenticates the login
 @app.route('/loginAuth', methods=['GET', 'POST'])
 def loginAuth():
@@ -48,6 +53,33 @@ def loginAuth():
 		#returns an error message to the html page
 		error = 'Invalid login or username'
 		return render_template('login.html', error=error)
+
+#Authenticates the register
+@app.route('/registerAuth', methods=['GET', 'POST'])
+def registerAuth():
+	#grabs information from the forms
+	userType = request.form['userType']
+	email = request.form['email']
+	password = request.form['password']
+
+	#cursor used to send queries
+	cursor = conn.cursor()
+	#executes query
+	query = 'SELECT * FROM {} WHERE username = {}'
+	cursor.execute(query.format(userType, email))
+	#stores the results in a variable
+	data = cursor.fetchone()
+	error = None
+	if(data):
+		#If the previous query returns data, then user exists
+		error = "This user already exists"
+		return render_template('register.html', error = error)
+	else:
+		ins = 'INSERT INTO user VALUES({}, {})'
+		cursor.execute(ins.format(email, password))
+		conn.commit()
+		cursor.close()
+		return render_template('index.html')
 
 #Define a route to upcoming_flight function
 @app.route('/upcoming_flight', methods=['GET', 'POST'])
