@@ -16,6 +16,39 @@ conn = mysql.connector.connect(host='localhost',
 def hello():
     return render_template('index.html')
 
+#Define route for login
+@app.route('/login')
+def login():
+	return render_template('login.html')
+
+#Authenticates the login
+@app.route('/loginAuth', methods=['GET', 'POST'])
+def loginAuth():
+	#grabs information from the forms
+	userType = request.form['userType']
+	username = request.form['username']
+	password = request.form['password']
+
+	#cursor used to send queries
+	cursor = conn.cursor()
+	#executes query
+	query = 'SELECT * FROM "{}" WHERE email = "{}" and password = md5("{}")'
+	cursor.execute(query.format(userType, username, password))
+	#stores the results in a variable
+	data = cursor.fetchone()
+	cursor.close()
+	error = None
+	if(data):
+		#creates a session for the the user
+		#session is a built in
+		session['username'] = username
+		session['userType'] = userType
+		return redirect(url_for(userType))
+	else:
+		#returns an error message to the html page
+		error = 'Invalid login or username'
+		return render_template('login.html', error=error)
+
 #Define a route to upcoming_flight function
 @app.route('/upcoming_flight', methods=['GET', 'POST'])
 def upcoming_flight():
@@ -54,33 +87,6 @@ def flight_status():
 # @app.route('/register')
 # def register():
 # 	return render_template('register.html')
-
-# #Authenticates the login
-# @app.route('/loginAuth', methods=['GET', 'POST'])
-# def loginAuth():
-# 	#grabs information from the forms
-# 	username = request.form['username']
-# 	password = request.form['password']
-
-# 	#cursor used to send queries
-# 	cursor = conn.cursor()
-# 	#executes query
-# 	query = "SELECT * FROM user WHERE username = '{}' and password = '{}'"
-# 	cursor.execute(query.format(username, password))
-# 	#stores the results in a variable
-# 	data = cursor.fetchone()
-# 	#use fetchall() if you are expecting more than 1 data row
-# 	cursor.close()
-# 	error = None
-# 	if(data):
-# 		#creates a session for the the user
-# 		#session is a built in
-# 		session['username'] = username
-# 		return redirect(url_for('home'))
-# 	else:
-# 		#returns an error message to the html page
-# 		error = 'Invalid login or username'
-# 		return render_template('login.html', error=error)
 
 # #Authenticates the register
 # @app.route('/registerAuth', methods=['GET', 'POST'])

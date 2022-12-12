@@ -1,0 +1,25 @@
+<html>
+<head>
+</head>
+<body>
+<form action="/loginAuth" method="POST">
+	<select name="userType">
+		<option value="customer">Customer</option>
+		<option value="agent">Booking Agent</option>
+		<option value="staff">Airline Staff</option>
+	</select>
+	<br>
+	<input type="text" name = "username" placeholder="Username" required/> </br>
+	<input type="password" name = "password" placeholder="Password" required/></br>
+	<input type="submit" value = Login />
+
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+
+</form>
+
+<a href="/">Back</a>
+
+</body>
+</html>
