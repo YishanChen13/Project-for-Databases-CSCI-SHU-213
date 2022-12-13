@@ -65,7 +65,14 @@ def loginAuth():
 @app.route('/customer')
 def customer():
 	username = session['username']
-	return render_template('customer.html', username=username)
+	cursor = conn.cursor()
+	query = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status \
+			FROM purchases NATURAL JOIN ticket NATURAL JOIN flight \
+			WHERE customer_email = '{}' AND DATE(departure_time) > CURDATE()"
+	cursor.execute(query.format(username))
+	data = cursor.fetchall()
+	cursor.close()
+	return render_template('customer.html', username=username, data=data)
 
 #Authenticates the register
 @app.route('/registerAuth', methods=['GET', 'POST'])
