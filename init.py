@@ -94,20 +94,27 @@ def registerAuth():
 		cursor.close()
 		return render_template('index.html')
 
+#Define a route to flight_info function
+@app.route('/flight_info')
+def flight_info():
+	return render_template('flight_info.html')
+
 #Define a route to search_flight function
 @app.route('/search_flight', methods=['GET', 'POST'])
-def upcoming_flight():
-	text = ""
-	if request.method == 'POST':
-		arrival_city  = request.form['arrival_city']
-		departure_city = request.form['departure_city']
-		departure_date = request.form['departure_date']
+def search_flight():
+	#grabs information from the forms
+	type = request.form['type']
+	arrival = request.form['arrival']
+	departure = request.form['departure']
+	departure_date = request.form['departure_date']
+
+	if(type == "city"):
 		query = "SELECT * FROM flight WHERE departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
 		cursor = conn.cursor()
-		cursor.execute(query.format(arrival_city, departure_city, departure_date))
-		text = cursor.fetchall()
+		cursor.execute(query.format(arrival, departure, departure_date))
+		data = cursor.fetchall()
 		cursor.close()
-	return render_template('upcoming_flight.html', text=text)
+	return render_template('flight_info.html', data=data)
 
 
 

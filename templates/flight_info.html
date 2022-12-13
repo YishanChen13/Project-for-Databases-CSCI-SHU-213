@@ -1,0 +1,52 @@
+<html>
+<head>
+</head>
+<body>
+<form action="/search_flight" method="POST">
+    <select name="type">
+		<option value="city">City</option>
+		<option value="airport">Airport</option>
+	</select>
+    
+    <input type="text" name = arrival placeholder="Arrival Destination" required/>
+    <input type="text" name = departure placeholder="Departure Destination" required/>
+    <input type="date" name = departure_date placeholder="Date" required/>
+    <input type="submit" value = Search />
+</form>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<table>
+    <th>Flight Number</th>
+    <th>Airline Name</th>
+    <th>Departure Airport</th>
+    <th>Arrival Airport</th>
+    <th>Departure Time</th>
+    <th>Arrival Time</th>
+    <th>Price</th>
+    <th>Status</th>
+
+{% for line in data %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+        <td>{{line[3]}}</td>
+        <td>{{line[4]}}</td>
+        <td>{{line[5]}}</td>
+        <td>{{line[6]}}</td>
+        <td>{{line[7]}}</td>
+        <td>{{line[8]}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+
+<a href="/">Back</a>
+
+</body>
+
+</html>
