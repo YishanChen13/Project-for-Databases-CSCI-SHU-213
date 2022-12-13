@@ -94,8 +94,8 @@ def registerAuth():
 		cursor.close()
 		return render_template('index.html')
 
-#Define a route to upcoming_flight function
-@app.route('/upcoming_flight', methods=['GET', 'POST'])
+#Define a route to search_flight function
+@app.route('/search_flight', methods=['GET', 'POST'])
 def upcoming_flight():
 	text = ""
 	if request.method == 'POST':
@@ -108,6 +108,8 @@ def upcoming_flight():
 		text = cursor.fetchall()
 		cursor.close()
 	return render_template('upcoming_flight.html', text=text)
+
+
 
 #Define a route to flight_status function
 @app.route('/flight_status', methods=['GET', 'POST'])
@@ -123,68 +125,10 @@ def flight_status():
 		cursor.close()
 	return render_template('flight_status.html', text=text)
 
-# #Define route for login
-# @app.route('/login')
-# def login():
-# 	return render_template('login.html')
-
-# #Define route for register
-# @app.route('/register')
-# def register():
-# 	return render_template('register.html')
-
-# #Authenticates the register
-# @app.route('/registerAuth', methods=['GET', 'POST'])
-# def registerAuth():
-# 	#grabs information from the forms
-# 	username = request.form['username']
-# 	password = request.form['password']
-
-# 	#cursor used to send queries
-# 	cursor = conn.cursor()
-# 	#executes query
-# 	query = "SELECT * FROM user WHERE username = '{}'"
-# 	cursor.execute(query.format(username))
-# 	#stores the results in a variable
-# 	data = cursor.fetchone()
-# 	#use fetchall() if you are expecting more than 1 data row
-# 	error = None
-# 	if(data):
-# 		#If the previous query returns data, then user exists
-# 		error = "This user already exists"
-# 		return render_template('register.html', error = error)
-# 	else:
-# 		ins = "INSERT INTO user VALUES('{}', '{}')"
-# 		cursor.execute(ins.format(username, password))
-# 		conn.commit()
-# 		cursor.close()
-# 		return render_template('index.html')
-
-# @app.route('/home')
-# def home():
-#     username = session['username']
-#     cursor = conn.cursor();
-#     query = "SELECT ts, blog_post FROM blog WHERE username = '{}' ORDER BY ts DESC"
-#     cursor.execute(query.format(username))
-#     data1 = cursor.fetchall() 
-#     cursor.close()
-#     return render_template('home.html', username=username, posts=data1)
-	
-# @app.route('/post', methods=['GET', 'POST'])
-# def post():
-# 	username = session['username']
-# 	cursor = conn.cursor();
-# 	blog = request.form['blog']
-# 	query = "INSERT INTO blog (blog_post, username) VALUES('{}', '{}')"
-# 	cursor.execute(query.format(blog, username))
-# 	conn.commit()
-# 	cursor.close()
-# 	return redirect(url_for('home'))
-
-# @app.route('/logout')
-# def logout():
-# 	session.pop('username')
-# 	return redirect('/')
+@app.route('/logout')
+def logout():
+	session.pop('username')
+	return redirect('/')
 	
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

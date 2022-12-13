@@ -3,13 +3,19 @@
 </head>
 <body>
 <form action="/upcoming_flight" method="POST">
+    <select name="type">
+		<option value="city">City</option>
+		<option value="airport">Airport</option>
+	</select>
+    
     <input type="text" name = arrival_city placeholder="Arrival City" required/>
     <input type="text" name = departure_city placeholder="Departure City" required/>
     <input type="date" name = departure_date placeholder="Date" required/>
     <input type="submit" value = Search />
 </form>
 
-<text>{{text}}</text>
+<a href="/">Back</a>
+
 </body>
 
 </html>
