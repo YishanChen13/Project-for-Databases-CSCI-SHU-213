@@ -95,19 +95,16 @@ def registerAuth():
 		return render_template('index.html')
 
 #Define a route to flight_info function
-@app.route('/flight_info')
+@app.route('/flight_info', methods=['GET', 'POST'])
 def flight_info():
-	return render_template('flight_info.html')
-
-#Define a route to search_flight function
-@app.route('/search_flight', methods=['GET', 'POST'])
-def search_flight():
-	#grabs information from the forms
-	type = request.form['type']
-	arrival = request.form['arrival']
-	departure = request.form['departure']
-	departure_date = request.form['departure_date']
-
+	data = []
+	type = ""
+	if request.method == 'POST':
+		#grabs information from the forms
+		type = request.form['type']
+		arrival = request.form['arrival']
+		departure = request.form['departure']
+		departure_date = request.form['departure_date']
 	if(type == "city"):
 		query = "SELECT * FROM flight WHERE departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
 		cursor = conn.cursor()
@@ -116,7 +113,24 @@ def search_flight():
 		cursor.close()
 	return render_template('flight_info.html', data=data)
 
-
+#Define a route to flight_info_purchase function
+@app.route('/flight_info_purchase', methods=['GET', 'POST'])
+def flight_info_purchase():
+	data = []
+	type = ""
+	if request.method == 'POST':
+		#grabs information from the forms
+		type = request.form['type']
+		arrival = request.form['arrival']
+		departure = request.form['departure']
+		departure_date = request.form['departure_date']
+	if(type == "city"):
+		query = "SELECT * FROM flight WHERE departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
+		cursor = conn.cursor()
+		cursor.execute(query.format(arrival, departure, departure_date))
+		data = cursor.fetchall()
+		cursor.close()
+	return render_template('flight_info_purchase.html', data=data)
 
 #Define a route to flight_status function
 @app.route('/flight_status', methods=['GET', 'POST'])

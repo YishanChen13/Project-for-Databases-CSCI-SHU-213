@@ -2,7 +2,7 @@
 <head>
 </head>
 <body>
-<form action="/flight_info" method="POST">
+<form action="/flight_info_purchase" method="POST">
     <select name="type">
 		<option value="city">City</option>
 		<option value="airport">Airport</option>
@@ -29,6 +29,7 @@
     <th>Arrival Time</th>
     <th>Price</th>
     <th>Status</th>
+    <th>Purchase</th>
 
 {% for line in data %}
     <tr>
@@ -40,7 +41,9 @@
         <td>{{line[6]}}</td>
         <td>{{line[7]}}</td>
         <td>{{line[8]}}</td>
+        <td><form action="/purchase", method = "POST"><button type = "submit">Purchase</button></form></td>
     </tr>
+
 {% endfor %}
 </table>
 <br>
