@@ -36,9 +36,16 @@ def loginAuth():
 
 	#cursor used to send queries
 	cursor = conn.cursor()
+
+	if(userType == "customer"):
+		query = 'SELECT * FROM customer WHERE customer_email = "{}" and password = md5("{}")'
+	elif(userType == "agent"):
+		query = 'SELECT * FROM booking_agent WHERE booking_agent_email = "{}" and password = md5("{}")'
+	elif(userType == "staff"):
+		query = 'SELECT * FROM airline_staff WHERE username = "{}" and password = md5("{}")'
+
 	#executes query
-	query = 'SELECT * FROM "{}" WHERE email = "{}" and password = md5("{}")'
-	cursor.execute(query.format(userType, username, password))
+	cursor.execute(query.format(username, password))
 	#stores the results in a variable
 	data = cursor.fetchone()
 	cursor.close()
@@ -53,6 +60,12 @@ def loginAuth():
 		#returns an error message to the html page
 		error = 'Invalid login or username'
 		return render_template('login.html', error=error)
+
+#Define a route to customer function
+@app.route('/customer')
+def customer():
+	username = session['username']
+	return render_template('customer.html', username=username)
 
 #Authenticates the register
 @app.route('/registerAuth', methods=['GET', 'POST'])
