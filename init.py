@@ -15,7 +15,7 @@ conn = mysql.connector.connect(host='localhost',
 @app.route('/')
 def hello():
     session["userType"] = "public"
-    return render_template('index.html')
+    return render_template('index.html', message="Welcome to the Air Ticket Reservation System!")
 
 #Define route for login
 @app.route('/login')
@@ -80,27 +80,65 @@ def customer():
 def registerAuth():
 	#grabs information from the forms
 	userType = request.form['userType']
-	email = request.form['email']
-	password = request.form['password']
 
-	#cursor used to send queries
-	cursor = conn.cursor()
-	#executes query
-	query = 'SELECT * FROM {} WHERE username = {}'
-	cursor.execute(query.format(userType, email))
-	#stores the results in a variable
-	data = cursor.fetchone()
-	error = None
-	if(data):
-		#If the previous query returns data, then user exists
-		error = "This user already exists"
-		return render_template('register.html', error = error)
-	else:
-		ins = 'INSERT INTO user VALUES({}, {})'
-		cursor.execute(ins.format(email, password))
+	if(userType == "customer"):
+		customer_email = request.form['username']
+		name = request.form['name']
+		password = request.form['password']
+		building_number = request.form['building_number']
+		street = request.form['street']
+		city = request.form['city']
+		state = request.form['state']
+		phone_number = request.form['phone_number']
+		passport_number = request.form['passport_number']
+		passport_expiration = request.form['passport_expiration']
+		passport_country = request.form['passport_country']
+		date_of_birth = request.form['date_of_birth']
+	
+		# cursor used to send queries
+		cursor = conn.cursor()
+		# executes query
+		query = "SELECT * FROM customer WHERE customer_email = '{}'"
+		cursor.execute(query.format(customer_email))
+		# stores the results in a variable
+		data = cursor.fetchone()
+		# use fetchall() if you are expecting more than 1 data row
+		error = None
+		if data:
+			error = "This customer already exists"
+			return render_template('register.html', error=error)
+
+		ins = "INSERT INTO customer VALUES({}, {}, md5('{}'), {}, {}, {}, {}, {}, {}, DATE('{}'), {}, DATE('{}'))"
+		cursor.execute(ins.format(customer_email, name, password, building_number, street, city, state, phone_number, passport_number, passport_expiration, passport_country, date_of_birth))
 		conn.commit()
 		cursor.close()
-		return render_template('index.html')
+		message = "Successfully Registered!"
+		return render_template('index.html', message=message)
+	
+	if(userType == "agent"):
+		booking_agent_email = request.form['username']
+		booking_agent_ID = request.form['ID'] 
+		password = request.form['password']
+	
+		# cursor used to send queries
+		cursor = conn.cursor()
+		# executes query
+		query = "SELECT * FROM booking_agent WHERE booking_agent_email = '{}'"
+		cursor.execute(query.format(booking_agent_email))
+		# stores the results in a variable
+		data = cursor.fetchone()
+		# use fetchall() if you are expecting more than 1 data row
+		error = None
+		if data:
+			error = "This booking agent already exists"
+			return render_template('register.html', error=error)
+
+		ins = "INSERT INTO booking_agent VALUES('{}', {}, md5('{}'))"
+		cursor.execute(ins.format(booking_agent_email, booking_agent_ID, password))
+		conn.commit()
+		cursor.close()
+		message = "Successfully Registered!"
+		return render_template('index.html', message=message)
 
 #Define a route to flight_info function
 @app.route('/flight_info', methods=['GET', 'POST'])

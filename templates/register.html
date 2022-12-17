@@ -3,69 +3,78 @@
 </head>
 <body>
 <form action="/registerAuth" method="POST">
-	<select name="userType" id="user" onChange="newform()">
+	<select name="userType" id="user" onchange = "newform(), setRequired()">
 		<option value="customer">Customer</option>
 		<option value="agent">Booking Agent</option>
 		<option value="staff">Airline Staff</option>
 	</select> <br>
 	
 	<div id="customer" style="display:block">
-	<input type="text" name = "username" placeholder="Email" required/> </br>
-	<input type="text" name = "name" placeholder="Name" required/> </br>
-	<input type="password" name = "password" placeholder="Password" required/></br>
-	<input type="text" name = "building_number" placeholder="Building Number" required/>
-	<input type="text" name = "street" placeholder="Street" required/> </br>
-	<input type="text" name = "city" placeholder="City" required/>
-	<input type="text" name = "state" placeholder="State" required/> </br>
-	<input type="text" name = "phone_number" placeholder="Phone Number" required/> </br>
-	<input type="text" name = "passport_number" placeholder="Passport Number" required/>
-	<input type="text" name = "passport_country" placeholder="Passport Country" required/> </br>
-	<input type="date" name = "passport_expiration" placeholder="Passport Expiration" required/> Passport Expiration Date <br>
-	<input type="date" name = "date_of_birth" placeholder="Date of Birth" required/> Date of Birth </br>
-	<input type="submit" value = Register />
+		<input type="text" name = "username" placeholder="Email" class = "required"/> </br>
+		<input type="text" name = "name" placeholder="Name" class = "required"/> </br>
+		<input type="password" name = "password" placeholder="Password" class = "required"/></br>
+		<input type="text" name = "building_number" placeholder="Building Number" class = "required"/>
+		<input type="text" name = "street" placeholder="Street" class = "required"/> </br>
+		<input type="text" name = "city" placeholder="City" class = "required"/>
+		<input type="text" name = "state" placeholder="State" class = "required"/> </br>
+		<input type="text" name = "phone_number" placeholder="Phone Number" class = "required"/> </br>
+		<input type="text" name = "passport_number" placeholder="Passport Number" class = "required"/>
+		<input type="text" name = "passport_country" placeholder="Passport Country" class = "required"/> </br>
+		<input type="date" name = "passport_expiration" placeholder="Passport Expiration" class = "required"/> Passport Expiration Date <br>
+		<input type="date" name = "date_of_birth" placeholder="Date of Birth" class = "required"/> Date of Birth </br>
 	</div>
 
 	<div id="agent" style="display:none">
-		<input type="text" name = "username" placeholder="Email" required/> </br>
-		<input type="number" name = "ID" placeholder="Booking Agent ID" required/> </br>
-		<input type="password" name = "password" placeholder="password" required/></br>
-		<input type="submit" value = Register />
+		<input type="text" name = "username" placeholder="Email" class = "required"/> </br>
+		<input type="number" name = "ID" placeholder="Booking Agent ID" class = "required"/> </br>
+		<input type="password" name = "password" placeholder="Password" class = "required"/></br>
 	</div>
 
 	<div id="staff" style="display:none">
-		<input type="text" name = "username" placeholder="Email" required/> </br>
-		<input type="text" name = "airline_name" placeholder="Airline Name" required/> </br>
-		<input type="password" name = "password" placeholder="password" required/></br>
-		<input type="text" name = "first_name" placeholder="First Name" required/>
-		<input type="text" name = "last_name" placeholder="Last Name" required/> </br>
-		<input type="date" name = "date_of_birth" placeholder="Date of Birth" required/> Date of Birth </br>
-		<input type="submit" value = Register />
+		<input type="text" name = "username" placeholder="Email" class = "required"/> </br>
+		<input type="text" name = "airline_name" placeholder="Airline Name" class = "required"/> </br>
+		<input type="password" name = "password" placeholder="Password" class = "required"/></br>
+		<input type="text" name = "first_name" placeholder="First Name" class = "required"/>
+		<input type="text" name = "last_name" placeholder="Last Name" class = "required"/> </br>
+		<input type="date" name = "date_of_birth" placeholder="Date of Birth" class = "required"/> Date of Birth </br>
 	</div>
 
-	<script type="text/javascript">
-		function newform() {
-			var x = document.getElementById("user").value;
-			if(x=="customer") {
-				document.getElementById("customer").style.display = "block";
-				document.getElementById("agent").style.display = "none";
-				document.getElementById("staff").style.display = "none";
-			} if(x == "agent") {
-				document.getElementById("agent").style.display = "block";
-				document.getElementById("customer").style.display = "none";
-				document.getElementById("staff").style.display = "none";
-			} if (x == "staff") {
-				document.getElementById("staff").style.display = "block";
-				document.getElementById("customer").style.display = "none";
-				document.getElementById("agent").style.display = "none";
-			}
-		}
-	</script>
+	<input type="submit" value = Register />
 
 	{% if error %}
 		<p class="error"><strong>Error:</strong> {{error}}</p>
 	{% endif %}
 
 </form>
+<script type="text/javascript">
+	function newform() {
+		var x = document.getElementById("user").value;
+		if(x=="customer") {
+			document.getElementById("customer").style.display = "block";
+			document.getElementById("agent").style.display = "none";
+			document.getElementById("staff").style.display = "none";
+		} if(x == "agent") {
+			document.getElementById("agent").style.display = "block";
+			document.getElementById("customer").style.display = "none";
+			document.getElementById("staff").style.display = "none";
+		} if (x == "staff") {
+			document.getElementById("staff").style.display = "block";
+			document.getElementById("customer").style.display = "none";
+			document.getElementById("agent").style.display = "none";
+		}
+	}
+	function setRequired() {
+		var r = document.getElementsByClassName('required')
+		for (var i in r) {
+			if (r[i].parentNode && r[i].parentNode.style.display == 'block') {
+			r[i].required = true
+			} else {
+			r[i].required = false
+			}
+	}
+}
+</script>
+
 <a href="/">Back</a>
 </body>
 </html>
