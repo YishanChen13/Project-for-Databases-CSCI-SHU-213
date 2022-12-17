@@ -108,8 +108,8 @@ def registerAuth():
 			error = "This customer already exists"
 			return render_template('register.html', error=error)
 
-		ins = "INSERT INTO customer VALUES({}, {}, md5('{}'), {}, {}, {}, {}, {}, {}, DATE('{}'), {}, DATE('{}'))"
-		cursor.execute(ins.format(customer_email, name, password, building_number, street, city, state, phone_number, passport_number, passport_expiration, passport_country, date_of_birth))
+		ins1 = "INSERT INTO customer VALUES({}, {}, md5('{}'), {}, {}, {}, {}, {}, {}, DATE('{}'), {}, DATE('{}'))"
+		cursor.execute(ins1.format(customer_email, name, password, building_number, street, city, state, phone_number, passport_number, passport_expiration, passport_country, date_of_birth))
 		conn.commit()
 		cursor.close()
 		message = "Successfully Registered!"
@@ -133,8 +133,36 @@ def registerAuth():
 			error = "This booking agent already exists"
 			return render_template('register.html', error=error)
 
-		ins = "INSERT INTO booking_agent VALUES('{}', {}, md5('{}'))"
-		cursor.execute(ins.format(booking_agent_email, booking_agent_ID, password))
+		ins2 = "INSERT INTO booking_agent VALUES('{}', {}, md5('{}'))"
+		cursor.execute(ins2.format(booking_agent_email, booking_agent_ID, password))
+		conn.commit()
+		cursor.close()
+		message = "Successfully Registered!"
+		return render_template('index.html', message=message)
+	
+	if(userType == "staff"):
+		username = request.form['username']
+		airline_name = request.form['airline_name'] 
+		password = request.form['password']
+		first_name = request.form['first_name']
+		last_name = request.form['last_name']
+		date_of_birth = request.form['date_of_birth']
+	
+		# cursor used to send queries
+		cursor = conn.cursor()
+		# executes query
+		query = "SELECT * FROM airline_staff WHERE username = '{}'"
+		cursor.execute(query.format(username))
+		# stores the results in a variable
+		data = cursor.fetchone()
+		# use fetchall() if you are expecting more than 1 data row
+		error = None
+		if data:
+			error = "This airline staff already exists"
+			return render_template('register.html', error=error)
+
+		ins3 = "INSERT INTO airline_staff VALUES({}, {}, md5('{}'), {}, {}, DATE('{}'))"
+		cursor.execute(ins3.format(username, airline_name, password, first_name, last_name, date_of_birth))
 		conn.commit()
 		cursor.close()
 		message = "Successfully Registered!"
