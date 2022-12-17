@@ -11,9 +11,10 @@ conn = mysql.connector.connect(host='localhost',
                                database='project1')
 
 
-#Define a route to hello function
+# Define a route to hello function
 @app.route('/')
 def hello():
+    session["userType"] = "public"
     return render_template('index.html')
 
 #Define route for login
@@ -22,7 +23,7 @@ def login():
 	return render_template('login.html')
 
 #Define route for register
-@app.route('/registerselect')
+@app.route('/register')
 def registerselect():
 	return render_template('register.html')
 
@@ -114,6 +115,12 @@ def flight_info():
 		departure_date = request.form['departure_date']
 	if(type == "city"):
 		query = "SELECT * FROM flight WHERE departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
+		cursor = conn.cursor()
+		cursor.execute(query.format(arrival, departure, departure_date))
+		data = cursor.fetchall()
+		cursor.close()
+	if(type == "airport"):
+		query = "SELECT * FROM flight WHERE departure_airport = '{}' AND arrival_airport = '{}' AND DATE(departure_time) = DATE('{}')"
 		cursor = conn.cursor()
 		cursor.execute(query.format(arrival, departure, departure_date))
 		data = cursor.fetchall()
