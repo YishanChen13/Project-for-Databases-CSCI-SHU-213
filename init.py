@@ -255,6 +255,8 @@ def purchase():
 	userType = session['userType']
 	airline_name = request.form['airline_name']
 	flight_num = request.form['flight_num']
+	if userType == "agent":
+		customer_email = request.form['customer']
 
 	cursor = conn.cursor() 
 	#check airplane seats
@@ -277,11 +279,18 @@ def purchase():
 		query4 = "INSERT INTO ticket VALUES({}, '{}', {})"
 		cursor.execute(query4.format(max[0] + 1, airline_name, flight_num))
 		conn.commit()
-		query5 = "INSERT INTO purchases VALUES({}, '{}', null, CURDATE())"
-		cursor.execute(query5.format(max[0] + 1, username))
-		conn.commit()
-		cursor.close()
-		return render_template("flight_info_purchase.html", message = message, userType=userType)
+		if userType == "customer":
+			query5 = "INSERT INTO purchases VALUES({}, '{}', null, CURDATE())"
+			cursor.execute(query5.format(max[0] + 1, username))
+			conn.commit()
+			cursor.close()
+			return render_template("flight_info_purchase.html", message = message)
+		else:
+			query6 = "INSERT INTO purchases VALUES({}, '{}', (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}'), CURDATE())"
+			cursor.execute(query6.format(max[0] + 1, customer_email, username))
+			conn.commit()
+			cursor.close()
+			return render_template("flight_info_purchase_b.html", message = message)
 
 #Define spending function
 @app.route('/spending', methods=['GET', 'POST'])
@@ -331,7 +340,33 @@ def agent():
 	cursor.execute(query.format(username))
 	data = cursor.fetchall()
 	cursor.close()
-	return render_template('customer.html', username=username, data=data)
+	return render_template('agent.html', username=username, data=data)
+
+#Define a route to flight_info_purchase_b function
+@app.route('/flight_info_purchase_b', methods=['GET', 'POST'])
+def flight_info_purchase_b():
+	username = session['username']
+	userType = session['userType']
+	data = []
+	type = ""
+	cursor = conn.cursor()
+	if request.method == 'POST':
+		#grabs information from the forms
+		type = request.form['type']
+		arrival = request.form['arrival']
+		departure = request.form['departure']
+		departure_date = request.form['departure_date']
+	if(type == "city"):
+		query = "SELECT * FROM flight WHERE airline_name IN (SELECT airline_name FROM works_with where booking_agent_email = '{}') AND departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
+		cursor.execute(query.format(username, arrival, departure, departure_date))
+		data = cursor.fetchall()
+		cursor.close()
+	if(type == "airport"):
+		query = "SELECT * FROM flight WHERE airline_name IN (SELECT airline_name FROM works_with where booking_agent_email = '{}') AND WHERE departure_airport = '{}' AND arrival_airport = '{}' AND DATE(departure_time) = DATE('{}')"
+		cursor.execute(query.format(username, arrival, departure, departure_date))
+		data = cursor.fetchall()
+		cursor.close()
+	return render_template('flight_info_purchase_b.html', data=data, userType=userType)
 	
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

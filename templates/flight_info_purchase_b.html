@@ -2,7 +2,7 @@
 <head>
 </head>
 <body>
-<form action="/flight_info_purchase" method="POST">
+<form action="/flight_info_purchase_b" method="POST">
     <select name="type">
 		<option value="city">City</option>
 		<option value="airport">Airport</option>
@@ -33,6 +33,7 @@
     <th>Price</th>
     <th>Status</th>
     <th>Purchase</th>
+    <th>Customer Email</th>
 
     <tr>
         <td>{{line[0]}}</td>
@@ -43,17 +44,22 @@
         <td>{{line[6]}}</td>
         <td>{{line[7]}}</td>
         <td>{{line[8]}}</td>
-        <td><form action="/purchase", method = "POST">
+        <form action="/purchase", method = "POST">
+        <td>
             <input type="hidden", name = "airline_name", value = "{{line[1]}}">
             <input type="hidden", name = "flight_num", value = {{line[0]}}> 
             <button type = "submit">Purchase</button>
-        </form></td>
+        </td>
+        <td>
+            <input type="text" name = "customer" placeholder="Customer Email" required/>
+        </td>
+        </form>
     </tr>
 </table>
 {% endfor %}
 <br>
 
-<a href="/customer">Return to Your Homepage</a>
+<a href="/staff">Return to Your Homepage</a>
 
 </body>
 
