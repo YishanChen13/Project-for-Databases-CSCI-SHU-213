@@ -10,6 +10,8 @@ conn = mysql.connector.connect(host='localhost',
                                password='password',
                                database='project1')
 
+#REQUIRED Application Use Cases
+#--------------------------------------------------------------------------------------------------------------------------------------------
 
 # Define a route to hello function
 @app.route('/')
@@ -17,15 +19,49 @@ def hello():
     session["userType"] = "public"
     return render_template('index.html', message="Welcome to the Air Ticket Reservation System!")
 
+#Define a route to flight_info function
+@app.route('/flight_info', methods=['GET', 'POST'])
+def flight_info():
+	data = []
+	type = ""
+	if request.method == 'POST':
+		#grabs information from the forms
+		type = request.form['type']
+		arrival = request.form['arrival']
+		departure = request.form['departure']
+		departure_date = request.form['departure_date']
+	if(type == "city"):
+		query = "SELECT * FROM flight WHERE departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
+		cursor = conn.cursor()
+		cursor.execute(query.format(arrival, departure, departure_date))
+		data = cursor.fetchall()
+		cursor.close()
+	if(type == "airport"):
+		query = "SELECT * FROM flight WHERE departure_airport = '{}' AND arrival_airport = '{}' AND DATE(departure_time) = DATE('{}')"
+		cursor = conn.cursor()
+		cursor.execute(query.format(arrival, departure, departure_date))
+		data = cursor.fetchall()
+		cursor.close()
+	return render_template('flight_info.html', data=data)
+
+#Define a route to flight_status function
+@app.route('/flight_status', methods=['GET', 'POST'])
+def flight_status():
+	data = ""
+	if request.method == 'POST':
+		flight_num  = request.form['flight_num']
+		departure_date = request.form['departure_date']
+		query = "SELECT status FROM flight WHERE flight_num = '{}' AND DATE(departure_time) = DATE('{}')"
+		cursor = conn.cursor()
+		cursor.execute(query.format(flight_num, departure_date))
+		data = cursor.fetchone()
+		cursor.close()
+	return render_template('flight_status.html', data=data)
+
 #Define route for login
 @app.route('/login')
 def login():
 	return render_template('login.html')
-
-#Define route for register
-@app.route('/register')
-def registerselect():
-	return render_template('register.html')
 
 #Authenticates the login
 @app.route('/loginAuth', methods=['GET', 'POST'])
@@ -62,18 +98,10 @@ def loginAuth():
 		error = 'Invalid login or username'
 		return render_template('login.html', error=error)
 
-#Define a route to customer function
-@app.route('/customer')
-def customer():
-	username = session['username']
-	cursor = conn.cursor()
-	query = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status \
-			FROM purchases NATURAL JOIN ticket NATURAL JOIN flight \
-			WHERE customer_email = '{}' AND DATE(departure_time) > CURDATE()"
-	cursor.execute(query.format(username))
-	data = cursor.fetchall()
-	cursor.close()
-	return render_template('customer.html', username=username, data=data)
+#Define route for register
+@app.route('/register')
+def registerselect():
+	return render_template('register.html')
 
 #Authenticates the register
 @app.route('/registerAuth', methods=['GET', 'POST'])
@@ -176,9 +204,28 @@ def registerAuth():
 		message = "Successfully Registered!"
 		return render_template('index.html', message=message)
 
-#Define a route to flight_info function
-@app.route('/flight_info', methods=['GET', 'POST'])
-def flight_info():
+#Customer use cases
+#--------------------------------------------------------------------------------------------------------------------------------------------
+
+#Define a route to customer function
+@app.route('/customer')
+def customer():
+	username = session['username']
+	userType = session['userType']
+	cursor = conn.cursor()
+	query = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status, ticket_id \
+			FROM purchases NATURAL JOIN ticket NATURAL JOIN flight \
+			WHERE customer_email = '{}' AND DATE(departure_time) > CURDATE()"
+	cursor.execute(query.format(username))
+	data = cursor.fetchall()
+	cursor.close()
+	return render_template('customer.html', username=username, data=data)
+
+#Define a route to flight_info_purchase function
+@app.route('/flight_info_purchase', methods=['GET', 'POST'])
+def flight_info_purchase():
+	username = session['username']
+	userType = session['userType']
 	data = []
 	type = ""
 	if request.method == 'POST':
@@ -199,44 +246,48 @@ def flight_info():
 		cursor.execute(query.format(arrival, departure, departure_date))
 		data = cursor.fetchall()
 		cursor.close()
-	return render_template('flight_info.html', data=data)
+	return render_template('flight_info_purchase.html', data=data, userType=userType)
 
-#Define a route to flight_info_purchase function
-@app.route('/flight_info_purchase', methods=['GET', 'POST'])
-def flight_info_purchase():
-	data = []
-	type = ""
-	if request.method == 'POST':
-		#grabs information from the forms
-		type = request.form['type']
-		arrival = request.form['arrival']
-		departure = request.form['departure']
-		departure_date = request.form['departure_date']
-	if(type == "city"):
-		query = "SELECT * FROM flight WHERE departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
-		cursor = conn.cursor()
-		cursor.execute(query.format(arrival, departure, departure_date))
-		data = cursor.fetchall()
-		cursor.close()
-	return render_template('flight_info_purchase.html', data=data)
+#Define purchase function
+@app.route('/purchase', methods=['GET', 'POST'])
+def purchase():
+	username = session['username']
+	userType = session['userType']
+	airline_name = request.form['airline_name']
+	flight_num = request.form['flight_num']
 
-#Define a route to flight_status function
-@app.route('/flight_status', methods=['GET', 'POST'])
-def flight_status():
-	text = ""
-	if request.method == 'POST':
-		flight_num  = request.form['flight_num']
-		departure_date = request.form['departure_date']
-		query = "SELECT status FROM flight WHERE flight_num = '{}' AND DATE(departure_time) = DATE('{}')"
-		cursor = conn.cursor()
-		cursor.execute(query.format(flight_num, departure_date))
-		text = cursor.fetchall()
+	cursor = conn.cursor() 
+	#check airplane seats
+	query = "SELECT num_of_seats FROM airplane NATURAL JOIN flight WHERE flight.airline_name = '{}' and flight.flight_num = {}"
+	cursor.execute(query.format(airline_name, flight_num))
+	seats = cursor.fetchone()
+	
+	query2 = "SELECT COUNT(*) FROM ticket WHERE airline_name = '{}' and flight_num = '{}'"
+	cursor.execute(query2.format(airline_name, flight_num))
+	count = cursor.fetchone()
+	if count[0] >= seats[0]:
 		cursor.close()
-	return render_template('flight_status.html', text=text)
+		message = "The ticket of this flight is sold out. Please choose other flights."
+		return render_template("flight_info_purchase.html", message = message, userType=userType)
+	else:
+		message = "Purchase Complete!"
+		query3 = "SELECT MAX(ticket_id) FROM ticket NATURAL JOIN flight WHERE flight.airline_name = '{}' and flight.flight_num = {}"
+		cursor.execute(query3.format(airline_name, flight_num))
+		max = cursor.fetchone()
+		query4 = "INSERT INTO ticket VALUES({}, '{}', {})"
+		cursor.execute(query4.format(max[0] + 1, airline_name, flight_num))
+		conn.commit()
+		query5 = "INSERT INTO purchases VALUES({}, '{}', null, CURDATE())"
+		cursor.execute(query5.format(max[0] + 1, username))
+		conn.commit()
+		cursor.close()
+		return render_template("flight_info_purchase.html", message = message, userType=userType)
+
 
 @app.route('/logout')
 def logout():
 	session.pop('username')
+	session.pop('userType')
 	return redirect('/')
 	
 app.secret_key = 'some key that you will never guess'

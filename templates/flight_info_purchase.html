@@ -20,6 +20,9 @@
     }
 </style>
 
+{{message}}
+
+{% for line in data %}
 <table>
     <th>Flight Number</th>
     <th>Airline Name</th>
@@ -31,7 +34,6 @@
     <th>Status</th>
     <th>Purchase</th>
 
-{% for line in data %}
     <tr>
         <td>{{line[0]}}</td>
         <td>{{line[1]}}</td>
@@ -41,14 +43,19 @@
         <td>{{line[6]}}</td>
         <td>{{line[7]}}</td>
         <td>{{line[8]}}</td>
-        <td><form action="/purchase", method = "POST"><button type = "submit">Purchase</button></form></td>
+        <td><form action="/purchase", method = "POST">
+            <input type="hidden", name = "airline_name", value = "{{line[1]}}">
+            <input type="hidden", name = "flight_num", value = {{line[0]}}> 
+            <button type = "submit">Purchase</button>
+        </form></td>
     </tr>
-
-{% endfor %}
 </table>
+{% endfor %}
 <br>
 
-<a href="/">Back</a>
+{% if userType == "customer" %}
+<a href="/customer">Return to Your Homepage</a>
+{% endif %}
 
 </body>
 

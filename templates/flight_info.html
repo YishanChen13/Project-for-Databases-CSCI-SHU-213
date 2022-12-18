@@ -20,6 +20,7 @@
     }
 </style>
 
+{% for line in data %}
 <table>
     <th>Flight Number</th>
     <th>Airline Name</th>
@@ -30,7 +31,6 @@
     <th>Price</th>
     <th>Status</th>
 
-{% for line in data %}
     <tr>
         <td>{{line[0]}}</td>
         <td>{{line[1]}}</td>
@@ -41,8 +41,8 @@
         <td>{{line[7]}}</td>
         <td>{{line[8]}}</td>
     </tr>
-{% endfor %}
 </table>
+{% endfor %}
 <br>
 
 <a href="/">Back</a>

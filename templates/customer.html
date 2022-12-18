@@ -5,8 +5,6 @@
 <body>
 
 <h1>Welcome Customer {{username}}!</h1>
-<a href="/flight_info_purchase">Search and Purchase Flights</a> <br>
-<a href="/customer/ratemyflights">Track my Spending</a> <br>
 
 <style type="text/css">
     table, th, td{
@@ -14,6 +12,7 @@
     }
 </style>
 
+<text>Your Purchased Flights: </text> <br>
 <table>
     <th>Flight Number</th>
     <th>Airline Name</th>
@@ -22,8 +21,8 @@
     <th>Departure Time</th>
     <th>Arrival Time</th>
     <th>Status</th>
-
-{% for line in data %}
+    <th>Ticket Number</th>
+    {% for line in data %}
     <tr>
         <td>{{line[0]}}</td>
         <td>{{line[1]}}</td>
@@ -32,11 +31,14 @@
         <td>{{line[4]}}</td>
         <td>{{line[5]}}</td>
         <td>{{line[6]}}</td>
+        <td>{{line[7]}}</td>
     </tr>
-{% endfor %}
+    {% endfor %}
 </table>
 <br>
 
+<a href="/flight_info_purchase">Search and Purchase Flights</a> <br>
+<a href="/customer/ratemyflights">Track my Spending</a> <br>
 <a href="/logout">Logout</a>
 
 </body>
