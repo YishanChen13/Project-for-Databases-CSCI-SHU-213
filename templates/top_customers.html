@@ -1,0 +1,49 @@
+<html>
+<head>
+</head>
+<body>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<text>Your Top 5 Customers Based on Number of Tickets Sold in the Last 6 Months</text> <br> <br>
+
+<table>
+    <th>Customer Email</th>
+    <th>Customer Name</th>
+    <th>Number of Tickets Sold</th>
+{% for line in top_count %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+        <td>{{line[2]}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+
+<text>Your Top 5 Customers Based on Commission Received in the Last Year</text> <br> <br>
+
+<table>
+    <th>Customer Email</th>
+    <th>Customer Name</th>
+    <th>Total Commission</th>
+{% for line in top_commission %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+        <td>{{line[2]}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+
+
+<a href="/agent">Return to Your Homepage</a>
+
+</body>
+
+</html>
