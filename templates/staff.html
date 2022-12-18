@@ -1,0 +1,58 @@
+<html>
+<head>
+</head>
+
+<body>
+
+<h1>Welcome Airline Staff {{username}}!</h1>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<text>Your Purchased Flights for Customers: </text> <br>
+<table>
+    <th>Flight Number</th>
+    <th>Airline Name</th>
+    <th>Departure Airport</th>
+    <th>Arrival Airport</th>
+    <th>Departure Time</th>
+    <th>Arrival Time</th>
+    <th>Status</th>
+    <th>Ticket Number</th>
+    <th>Customer Username</th>
+    {% for line in data %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+        <td>{{line[2]}}</td>
+        <td>{{line[3]}}</td>
+        <td>{{line[4]}}</td>
+        <td>{{line[5]}}</td>
+        <td>{{line[6]}}</td>
+        <td>{{line[7]}}</td>
+        <td>{{line[8]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+
+<a href="/create_flights">Search and Purchase Flights for Customers</a> <br>
+<a href="/change_status">View my Commission</a> <br>
+<a href="/add_airplane">View Top Customers</a> <br>
+<a href="/add_airport">View Top Customers</a> <br>
+<a href="/view_agents">View Top Customers</a> <br>
+<a href="/view_customers">View Top Customers</a> <br>
+<a href="/view_reports">View Top Customers</a> <br>
+<a href="/revenue">View Top Customers</a> <br>
+<a href="/top_destination">View Top Customers</a> <br>
+<a href="/permission">View Top Customers</a> <br>
+<a href="/add_agents">View Top Customers</a> <br>
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>
