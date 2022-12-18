@@ -283,12 +283,55 @@ def purchase():
 		cursor.close()
 		return render_template("flight_info_purchase.html", message = message, userType=userType)
 
+#Define spending function
+@app.route('/spending', methods=['GET', 'POST'])
+def spending():
+	username = session['username']
+	userType = session['userType']
+	m = [6]
+	cursor = conn.cursor() 
+	query1 = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE customer_email = '{}' and DATEDIFF(CURDATE(), purchase_date) <= 365/2"
+	cursor.execute(query1.format(username))
+	total = cursor.fetchone()
+	query2 = "SELECT sum(price), month(purchase_date) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE purchases.customer_email = '{}' and DateDiff(CURDATE(), purchase_date) <= 365/2 group by MONTH(purchase_date)"
+	cursor.execute(query2.format(username))
+	monthly = cursor.fetchall()
+	if request.method == 'POST':
+		start = request.form["start_date"]
+		end = request.form['end_date']
+		query3 = "SELECT sum(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE customer_email = '{}' and purchase_date between '{}' and '{}'"
+		cursor.execute(query3.format(username, start, end))
+		total = cursor.fetchone()
+		query4 = "SELECT sum(price), month(purchase_date) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE customer_email = '{}' and purchase_date between '{}' and '{}' group by MONTH(purchase_date)"
+		cursor.execute(query4.format(username, start, end))
+		monthly = cursor.fetchall()
+		query5 = "SELECT TIMESTAMPDIFF(MONTH, '{}', '{}')"
+		cursor.execute(query5.format(start, end))
+		m = cursor.fetchone()
+	cursor.close()
+	return render_template("spending.html", total=total[0], monthly=monthly, m=m[0], userType=userType)
 
+#Define logout function
 @app.route('/logout')
 def logout():
 	session.pop('username')
 	session.pop('userType')
 	return redirect('/')
+
+#Booking agent use cases
+#--------------------------------------------------------------------------------------------------------------------------------------------
+@app.route('/agent')
+def agent():
+	username = session['username']
+	userType = session['userType']
+	cursor = conn.cursor()
+	query = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status, ticket_id, customer_email \
+			FROM purchases NATURAL JOIN ticket NATURAL JOIN flight NATURAL JOIN booking_agent \
+			WHERE booking_agent_email = '{}' AND DATE(departure_time) > CURDATE()"
+	cursor.execute(query.format(username))
+	data = cursor.fetchall()
+	cursor.close()
+	return render_template('customer.html', username=username, data=data)
 	
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

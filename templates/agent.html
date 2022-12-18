@@ -4,7 +4,7 @@
 
 <body>
 
-<h1>Welcome Customer {{username}}!</h1>
+<h1>Welcome Booking Agent {{username}}!</h1>
 
 <style type="text/css">
     table, th, td{
@@ -12,7 +12,7 @@
     }
 </style>
 
-<text>Your Purchased Flights: </text> <br>
+<text>Your Purchased Flights for Customers: </text> <br>
 <table>
     <th>Flight Number</th>
     <th>Airline Name</th>
@@ -22,6 +22,7 @@
     <th>Arrival Time</th>
     <th>Status</th>
     <th>Ticket Number</th>
+    <th>Customer Username</th>
     {% for line in data %}
     <tr>
         <td>{{line[0]}}</td>
@@ -32,13 +33,15 @@
         <td>{{line[5]}}</td>
         <td>{{line[6]}}</td>
         <td>{{line[7]}}</td>
+        <td>{{line[8]}}</td>
     </tr>
     {% endfor %}
 </table>
 <br>
 
-<a href="/flight_info_purchase">Search and Purchase Flights</a> <br>
-<a href="/spending">Track my Spending</a> <br>
+<a href="/flight_info_purchase">Search and Purchase Flights for Customers</a> <br>
+<a href="/spending">View my Commission</a> <br>
+<a href="/spending">View Top Customers</a> <br>
 <a href="/logout">Logout</a>
 
 </body>
