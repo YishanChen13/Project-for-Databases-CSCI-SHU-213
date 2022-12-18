@@ -116,9 +116,9 @@ def registerAuth():
 		return render_template('index.html', message=message)
 	
 	if(userType == "agent"):
-		booking_agent_email = request.form['username']
+		booking_agent_email = request.form['username2']
 		booking_agent_ID = request.form['ID'] 
-		password = request.form['password']
+		password = request.form['password2']
 	
 		# cursor used to send queries
 		cursor = conn.cursor()
@@ -141,27 +141,35 @@ def registerAuth():
 		return render_template('index.html', message=message)
 	
 	if(userType == "staff"):
-		username = request.form['username']
+		username = request.form['username3']
 		airline_name = request.form['airline_name'] 
-		password = request.form['password']
+		password = request.form['password3']
 		first_name = request.form['first_name']
 		last_name = request.form['last_name']
-		date_of_birth = request.form['date_of_birth']
+		date_of_birth = request.form['date_of_birth3']
 	
 		# cursor used to send queries
 		cursor = conn.cursor()
 		# executes query
-		query = "SELECT * FROM airline_staff WHERE username = '{}'"
-		cursor.execute(query.format(username))
+		query1 = "SELECT * FROM airline_staff WHERE username = '{}'"
+		cursor.execute(query1.format(username))
 		# stores the results in a variable
 		data = cursor.fetchone()
 		# use fetchall() if you are expecting more than 1 data row
+		query2 = "SELECT * FROM airline WHERE airline_name = '{}'"
+		cursor.execute(query2.format(airline_name))
+		data2 = cursor.fetchone()
+
 		error = None
 		if data:
 			error = "This airline staff already exists"
 			return render_template('register.html', error=error)
 
-		ins3 = "INSERT INTO airline_staff VALUES({}, {}, md5('{}'), {}, {}, DATE('{}'))"
+		if not data2:
+			error = "This airline does not exist"
+			return render_template('register.html', error=error)
+
+		ins3 = "INSERT INTO airline_staff VALUES('{}', '{}', md5('{}'), '{}', '{}', DATE('{}'))"
 		cursor.execute(ins3.format(username, airline_name, password, first_name, last_name, date_of_birth))
 		conn.commit()
 		cursor.close()
