@@ -1,0 +1,39 @@
+<html>
+<head>
+</head>
+<body>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<text>Your Total Spending The Last {{m}} Months Is: {{total}}</text> <br> <br>
+
+<table>
+    <th>Spent</th>
+    <th>Month</th>
+{% for line in monthly %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+
+<text>Specify a Date Range: </text>
+<form action="/spending" method="POST">
+    <input type="date" name = start_date placeholder="Start Date" required/> Start Date <br>
+    <input type="date" name = end_date placeholder="Start End" required/> End Date <br>
+    <input type="submit" value = Submit />
+</form> <br>
+
+{% if userType == "customer" %}
+<a href="/customer">Return to Your Homepage</a>
+{% endif %}
+
+</body>
+
+</html>
