@@ -424,10 +424,22 @@ def top_customers():
 def staff():
 	username = session['username']
 	userType = session['userType']
+	admin = ""
+	operator = ""
 	cursor = conn.cursor()
 	query = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status FROM airline_staff NATURAL JOIN flight where username = '{}' AND DATE(departure_time) between CURDATE() AND CURDATE()+30"
 	cursor.execute(query.format(username))
 	data = cursor.fetchall()
+	query = "SELECT admin from airline_staff WHERE username = '{}'"
+	cursor.execute(query.format(username))
+	a = cursor.fetchone()
+	if a[0] == 1:
+		admin = "Admin"
+	query2 = "SELECT operator from airline_staff WHERE username = '{}'"
+	cursor.execute(query2.format(username))
+	o = cursor.fetchone()
+	if o[0] == 1:
+		operator = "Operator"
 	d=[30]
 	if request.method == 'POST':
 		start = request.form["start_date"]
@@ -447,7 +459,7 @@ def staff():
 		cursor.execute(query3.format(start, end))
 		d = cursor.fetchone()
 	cursor.close()
-	return render_template('staff.html', username=username, data=data, d=d[0])
+	return render_template('staff.html', username=username, data=data, d=d[0], admin=admin, operator=operator)
 
 @app.route('/customer_list', methods=['GET', 'POST'])
 def customer_list():
