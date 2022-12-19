@@ -1,0 +1,49 @@
+<html>
+<head>
+</head>
+<body>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<text>Top 5 Booking Agents This Year Based On Tickets Sold</text> <br> <br>
+
+<table>
+    <th>Booking Agent Email</th>
+    <th>Booking Agent ID</th>
+    <th>Number of Tickets Sold</th>
+{% for line in top_count %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+        <td>{{line[2]}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+
+<text>Top 5 Booking Agents This Year Based On Commission</text> <br> <br>
+
+<table>
+    <th>Booking Agent Email</th>
+    <th>Booking Agent ID</th>
+    <th>Total Commission</th>
+{% for line in top_commission %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+        <td>{{line[2]}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+
+
+<a href="/staff">Return to Your Homepage</a>
+
+</body>
+
+</html>

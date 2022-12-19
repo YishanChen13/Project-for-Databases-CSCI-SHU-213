@@ -211,7 +211,6 @@ def registerAuth():
 @app.route('/customer')
 def customer():
 	username = session['username']
-	userType = session['userType']
 	cursor = conn.cursor()
 	query = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status, ticket_id \
 			FROM purchases NATURAL JOIN ticket NATURAL JOIN flight \
@@ -224,7 +223,6 @@ def customer():
 #Define a route to flight_info_purchase function
 @app.route('/flight_info_purchase', methods=['GET', 'POST'])
 def flight_info_purchase():
-	username = session['username']
 	userType = session['userType']
 	data = []
 	type = ""
@@ -332,7 +330,6 @@ def logout():
 @app.route('/agent')
 def agent():
 	username = session['username']
-	userType = session['userType']
 	cursor = conn.cursor()
 	query = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status, ticket_id, customer_email \
 			FROM purchases NATURAL JOIN ticket NATURAL JOIN flight NATURAL JOIN booking_agent \
@@ -407,12 +404,11 @@ def commission():
 @app.route('/top_customers', methods=['GET', 'POST'])
 def top_customers():
 	username = session['username']
-	userType = session['userType']
 	cursor = conn.cursor() 
 	query1 = "SELECT customer_email, name, COUNT(*) FROM purchases NATURAL JOIN customer WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') AND DateDiff(CURDATE(), purchase_date) <= 365/2  GROUP BY customer_email ORDER BY count(*) DESC limit 5"
 	cursor.execute(query1.format(username))
 	top_count = cursor.fetchall()
-	query2 = "SELECT customer_email, name, SUM(price) FROM purchases NATURAL JOIN customer NATURAL JOIN flight NATURAL JOIN ticket WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') AND DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY customer_email ORDER BY count(*) DESC limit 5"
+	query2 = "SELECT customer_email, name, SUM(price) FROM purchases NATURAL JOIN customer NATURAL JOIN flight NATURAL JOIN ticket WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') AND DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY customer_email ORDER BY sum(*) DESC limit 5"
 	cursor.execute(query2.format(username))
 	top_commission = cursor.fetchall()
 	cursor.close()
@@ -423,7 +419,6 @@ def top_customers():
 @app.route('/staff', methods=['GET', 'POST'])
 def staff():
 	username = session['username']
-	userType = session['userType']
 	admin = ""
 	operator = ""
 	cursor = conn.cursor()
@@ -465,8 +460,6 @@ def staff():
 
 @app.route('/customer_list', methods=['GET', 'POST'])
 def customer_list():
-	username = session['username']
-	userType = session['userType']
 	flight_num = request.form['flight_num']
 	airline_name = request.form['airline_name']
 	cursor = conn.cursor()
@@ -560,7 +553,6 @@ def add_airport():
 			airport_name = request.form["airport_name"]
 			city = request.form['city']
 			cursor = conn.cursor()	
-			username = session["username"]
 			query = "SELECT * FROM airport WHERE airport_name = '{}'"
 			cursor.execute(query.format(airport_name))
 			data = cursor.fetchall()
@@ -577,6 +569,22 @@ def add_airport():
 			return render_template('add_airport.html', message = "Add A Airport")
 	else:
 		return render_template('staff.html', message = "You do not have permission!")
+
+@app.route('/top_agents', methods=['GET', 'POST'])
+def top_agents():
+	username = session["username"]
+	cursor = conn.cursor() 
+	query = "select airline_name from airline_staff where username = '{}'"
+	cursor.execute(query.format(username))
+	airline_name = cursor.fetchone() [0]
+	query2 = "SELECT booking_agent_email, booking_agent_ID, COUNT(*) FROM purchases NATURAL JOIN booking_agent NATURAL JOIN works_with WHERE airline_name = '{}' AND DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY booking_agent_ID, booking_agent_email ORDER BY count(*) DESC limit 5"
+	cursor.execute(query2.format(airline_name))
+	top_count = cursor.fetchall()
+	query3 = "SELECT booking_agent_email, booking_agent_ID, SUM(price) FROM (SELECT booking_agent_email, booking_agent_ID, ticket_id, purchase_date FROM purchases NATURAL JOIN booking_agent NATURAL JOIN works_with WHERE airline_name = '{}') AS temp NATURAL JOIN ticket NATURAL JOIN flight WHERE DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY booking_agent_ID, booking_agent_email ORDER BY SUM(price) DESC limit 5"
+	cursor.execute(query3.format(airline_name))
+	top_commission = cursor.fetchall()
+	cursor.close()
+	return render_template("top_agents.html", top_count=top_count, top_commission=top_commission)
 
 @app.route('/refresh')
 def refresh():
