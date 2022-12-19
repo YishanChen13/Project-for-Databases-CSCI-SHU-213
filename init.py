@@ -540,7 +540,7 @@ def add_airplane():
 			cursor.execute(query2.format(airplane_ID, airline_name))
 			data = cursor.fetchall()
 			if data:
-				message = "This Flight Already Exists"
+				message = "This Airplane Already Exists"
 				return render_template('add_airplane.html', message = message)
 			ins = "INSERT INTO airplane VALUES({}, '{}', {})"
 			cursor.execute(ins.format(airplane_ID, airline_name, num_of_seats))
@@ -550,6 +550,31 @@ def add_airplane():
 			return render_template('add_airplane.html', message = message)
 		else:
 			return render_template('add_airplane.html', message = "Add A Airplane")
+	else:
+		return render_template('staff.html', message = "You do not have permission!")
+
+@app.route('/add_airport', methods=['GET', 'POST'])
+def add_airport():
+	if session["admin"] == "admin":
+		if request.method == 'POST':
+			airport_name = request.form["airport_name"]
+			city = request.form['city']
+			cursor = conn.cursor()	
+			username = session["username"]
+			query = "SELECT * FROM airport WHERE airport_name = '{}'"
+			cursor.execute(query.format(airport_name))
+			data = cursor.fetchall()
+			if data:
+				message = "This Airport Already Exists"
+				return render_template('add_airport.html', message = message)
+			ins = "INSERT INTO airport VALUES('{}', '{}')"
+			cursor.execute(ins.format(airport_name, city))
+			conn.commit()
+			cursor.close()
+			message = "Successfully Added A Airport!"
+			return render_template('add_airport.html', message = message)
+		else:
+			return render_template('add_airport.html', message = "Add A Airport")
 	else:
 		return render_template('staff.html', message = "You do not have permission!")
 
