@@ -1,0 +1,50 @@
+<html>
+<head>
+</head>
+<body>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<text>The Most Frequent Customer This Year Is: </text> <br>
+{% for line in top %}
+<table>
+    <th>Customer Email</th>
+    <th>Customer Name</th>
+    <th>Flights Purchased</th>
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+        <td>{{line[2]}}</td>
+    </tr>
+</table>
+{% endfor %}
+<br>
+
+<text>The Customer You Searched For Purchased These Flight This Year: </text> <br>
+<table>
+    <th>Flight Number</th>
+    <th>Departure Date</th>
+    {% for line in flights %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+
+<text>Search For A Customer</text>
+<form action="/view_customers" method="POST">
+    <input type="text" name = "username" placeholder="Customer Username" required/> <br>
+    <input type="submit" value = Submit />
+</form> <br>
+
+<a href="/staff">Return to Your Homepage</a>
+
+</body>
+
+</html>

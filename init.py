@@ -586,6 +586,25 @@ def top_agents():
 	cursor.close()
 	return render_template("top_agents.html", top_count=top_count, top_commission=top_commission)
 
+@app.route('/view_customers', methods=['GET', 'POST'])
+def view_customers():
+	username = session["username"]
+	flights = []
+	cursor = conn.cursor() 
+	query = "select airline_name from airline_staff where username = '{}'"
+	cursor.execute(query.format(username))
+	airline_name = cursor.fetchone() [0]
+	query2 = "SELECT customer_email, name, COUNT(DISTINCT(ticket_id)) FROM (SELECT DISTINCT(ticket_id), name, customer_email, departure_time FROM purchases NATURAL JOIN customer NATURAL JOIN flight WHERE airline_name = '{}') AS temp WHERE DateDiff(DATE(departure_time), CURDATE()) <= 365 GROUP BY customer_email, name ORDER BY COUNT(ticket_id) DESC limit 1"
+	cursor.execute(query2.format(airline_name))
+	top = cursor.fetchall()
+	if request.method == 'POST':
+		username = request.form["username"]
+		query3 = "SELECT flight_num, DATE(departure_time) FROM flight NATURAL JOIN ticket NATURAL JOIN purchases WHERE customer_email = '{}' AND airline_name = '{}' AND DateDiff(DATE(departure_time), CURDATE()) <= 365"
+		cursor.execute(query3.format(username, airline_name))
+		flights = cursor.fetchall()
+	cursor.close()
+	return render_template("view_customers.html", top=top, flights=flights)
+
 @app.route('/refresh')
 def refresh():
 	return staff()
