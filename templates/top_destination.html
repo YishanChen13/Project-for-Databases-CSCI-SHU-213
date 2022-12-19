@@ -1,0 +1,45 @@
+<html>
+<head>
+</head>
+<body>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<text>Top 3 Destinations Last 3 Months</text> <br> <br>
+
+<table>
+    <th>Destination</th>
+    <th>Tickets Purchased</th>
+{% for line in m %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+
+<text>Top 3 Destinations Last Year</text> <br> <br>
+
+<table>
+    <th>Destination</th>
+    <th>Tickets Purchased</th>
+{% for line in y %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+
+
+<a href="/staff">Return to Your Homepage</a>
+
+</body>
+
+</html>

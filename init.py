@@ -650,6 +650,22 @@ def view_reports():
 	cursor.close()
 	return render_template("view_reports.html",total=total[0], customer=customer[0], agent=agent[0], t=t[0])
 
+@app.route('/top_destination', methods=['GET', 'POST'])
+def top_destination():
+	username = session["username"]
+	cursor = conn.cursor() 
+	query = "select airline_name from airline_staff where username = '{}'"
+	cursor.execute(query.format(username))
+	airline_name = cursor.fetchone() [0]
+	query2 = "SELECT city, COUNT(city) FROM (ticket NATURAL JOIN flight) JOIN airport WHERE (arrival_airport = airport_name) AND airline_name = '{}' AND DATEDIFF(DATE(departure_time), CURDATE()) <= 365 GROUP BY city ORDER BY COUNT(city) DESC limit 3"
+	cursor.execute(query2.format(airline_name))
+	y = cursor.fetchall()
+	query3 = "SELECT city, COUNT(city) FROM (ticket NATURAL JOIN flight) JOIN airport WHERE (arrival_airport = airport_name) AND airline_name = '{}' AND DATEDIFF(DATE(departure_time), CURDATE()) <= 90 GROUP BY city ORDER BY COUNT(city) DESC limit 3"
+	cursor.execute(query3.format(airline_name))
+	m = cursor.fetchall()
+	cursor.close()
+	return render_template("top_destination.html", y=y, m=m)
+
 @app.route('/refresh')
 def refresh():
 	return staff()
