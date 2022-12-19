@@ -12,7 +12,7 @@
     }
 </style>
 
-<text>Your Purchased Flights for Customers: </text> <br>
+<text>Upcoming Flights In The Next {{d}} Days: </text> <br>
 <table>
     <th>Flight Number</th>
     <th>Airline Name</th>
@@ -21,8 +21,7 @@
     <th>Departure Time</th>
     <th>Arrival Time</th>
     <th>Status</th>
-    <th>Ticket Number</th>
-    <th>Customer Username</th>
+    <th>Customers</th>
     {% for line in data %}
     <tr>
         <td>{{line[0]}}</td>
@@ -32,12 +31,23 @@
         <td>{{line[4]}}</td>
         <td>{{line[5]}}</td>
         <td>{{line[6]}}</td>
-        <td>{{line[7]}}</td>
-        <td>{{line[8]}}</td>
     </tr>
     {% endfor %}
 </table>
 <br>
+
+<text>Specify: </text>
+<form action="/staff" method="POST">
+    <select name="type">
+		<option value="city">City</option>
+		<option value="airport">Airport</option>
+	</select>
+    <input type="text" name = arrival placeholder="Arrival Destination" required/>
+    <input type="text" name = departure placeholder="Departure Destination" required/> <br>
+    <input type="date" name = start_date placeholder="Start Date" required/> Start Date
+    <input type="date" name = end_date placeholder="Start End" required/> End Date <br>
+    <input type="submit" value = Submit />
+</form> <br>
 
 <a href="/create_flights">Search and Purchase Flights for Customers</a> <br>
 <a href="/change_status">View my Commission</a> <br>
