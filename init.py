@@ -509,7 +509,54 @@ def create_flights():
 			return render_template('create_flights.html', message = "Create A Flight")
 	else:
 		return render_template('staff.html', message = "You do not have permission!")
-	
+
+@app.route('/change_status', methods=['GET', 'POST'])
+def change_status():
+	if session["operator"] == "operator":
+		status = request.form['status']
+		flight_num = request.form['flight_num']
+		airline_name = request.form['airline_name']
+		cursor = conn.cursor()
+		query = "UPDATE flight SET status = '{}' WHERE flight_num = {} AND airline_name = '{}'"
+		cursor.execute(query.format(status, flight_num, airline_name))
+		conn.commit()
+		cursor.close()
+		return render_template('staff.html', message = "Status Updated")
+	else:
+		return render_template('staff.html', message = "You do not have permission!")
+
+@app.route('/add_airplane', methods=['GET', 'POST'])
+def add_airplane():
+	if session["admin"] == "admin":
+		if request.method == 'POST':
+			airplane_ID = request.form["airplane_ID"]
+			num_of_seats = request.form['num_of_seats']
+			cursor = conn.cursor()	
+			username = session["username"]
+			query = "select airline_name from airline_staff where username = '{}'"
+			cursor.execute(query.format(username))
+			airline_name = cursor.fetchone() [0]
+			query2 = "SELECT * FROM airplane WHERE airplane_ID = {} and airline_name = '{}'"
+			cursor.execute(query2.format(airplane_ID, airline_name))
+			data = cursor.fetchall()
+			if data:
+				message = "This Flight Already Exists"
+				return render_template('add_airplane.html', message = message)
+			ins = "INSERT INTO airplane VALUES({}, '{}', {})"
+			cursor.execute(ins.format(airplane_ID, airline_name, num_of_seats))
+			conn.commit()
+			cursor.close()
+			message = "Successfully Added A Airplane!"
+			return render_template('add_airplane.html', message = message)
+		else:
+			return render_template('add_airplane.html', message = "Add A Airplane")
+	else:
+		return render_template('staff.html', message = "You do not have permission!")
+
+@app.route('/refresh')
+def refresh():
+	return staff()
+
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
 #debug = True -> you don't have to restart flask

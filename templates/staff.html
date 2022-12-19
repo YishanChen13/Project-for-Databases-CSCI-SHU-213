@@ -5,7 +5,8 @@
 <body>
 
 <h1>Welcome Airline Staff {{username}}!</h1>
-<text>You Have {{admin}} {{operator}} Permission</text> <br> <br>
+<text>You Have {{admin}} {{operator}} Permission</text> <br>
+<text>{{message}}</text> <br> <br>
 
 <style type="text/css">
     table, th, td{
@@ -22,6 +23,7 @@
     <th>Departure Time</th>
     <th>Arrival Time</th>
     <th>Status</th>
+    <th>Change Status</th>
     <th>Customers</th>
     {% for line in data %}
     <tr>
@@ -32,6 +34,14 @@
         <td>{{line[4]}}</td>
         <td>{{line[5]}}</td>
         <td>{{line[6]}}</td>
+        <form action="/change_status", method = "POST">
+            <td>
+                <input type="hidden", name = "airline_name", value = "{{line[1]}}">
+                <input type="hidden", name = "flight_num", value = {{line[0]}}> 
+                <input type="text", name = "status", placeholder="Status">
+                <button type = "submit">Change</button>
+            </td>
+        </form>
         <form action="/customer_list", method = "POST">
             <td>
                 <input type="hidden", name = "airline_name", value = "{{line[1]}}">
@@ -57,9 +67,9 @@
     <input type="submit" value = Submit />
 </form> <br>
 
+<a href="/refresh">Refresh</a> <br> <br>
 <a href="/create_flights">Create Flights</a> <br>
-<a href="/change_status">View my Commission</a> <br>
-<a href="/add_airplane">View Top Customers</a> <br>
+<a href="/add_airplane">Add Airplane</a> <br>
 <a href="/add_airport">View Top Customers</a> <br>
 <a href="/view_agents">View Top Customers</a> <br>
 <a href="/view_customers">View Top Customers</a> <br>
@@ -67,7 +77,7 @@
 <a href="/revenue">View Top Customers</a> <br>
 <a href="/top_destination">View Top Customers</a> <br>
 <a href="/permission">View Top Customers</a> <br>
-<a href="/add_agents">View Top Customers</a> <br>
+<a href="/add_agents">View Top Customers</a> <br> <br>
 <a href="/logout">Logout</a>
 
 </body>
