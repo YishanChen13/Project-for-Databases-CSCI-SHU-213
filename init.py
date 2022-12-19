@@ -666,6 +666,33 @@ def top_destination():
 	cursor.close()
 	return render_template("top_destination.html", y=y, m=m)
 
+@app.route('/permission', methods=['GET', 'POST'])
+def permission():
+	if session["admin"] == "admin":
+		username = session['username']
+		cursor = conn.cursor()
+		query = "SELECT username FROM airline_staff WHERE username != '{}'"
+		cursor.execute(query.format(username))
+		data = cursor.fetchall()
+		message = "Grant Permission: "
+		if request.method == 'POST':
+			type = request.form['type']
+			email = request.form['username']
+			if type == "admin":
+				upd = "UPDATE airline_staff SET admin = true WHERE username = '{}'"
+				cursor.execute(upd.format(email))
+				conn.commit()
+				message = "Admin Granted to " + email
+			if type == "operator":
+				upd = "UPDATE airline_staff SET operator = true WHERE username = '{}'"
+				cursor.execute(upd.format(email))
+				conn.commit()
+				message = "Operator Granted to " + email
+		cursor.close()
+		return render_template('permission.html', data=data, message=message)
+	else: 
+		return render_template('permission.html', message = "You do not have permission!")
+
 @app.route('/refresh')
 def refresh():
 	return staff()
