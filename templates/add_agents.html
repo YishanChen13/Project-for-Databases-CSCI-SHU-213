@@ -1,0 +1,36 @@
+<html>
+<head>
+</head>
+
+<body>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<text>{{message}} </text> <br>
+<table>
+    <th>Username</th>
+    <th>Add</th>
+    {% for line in data %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <form action="/add_agents", method = "POST">
+            <td>
+                <input type="hidden", name = "username", value = "{{line[0]}}">
+                <input type="submit" value = Grant />
+            </td>
+        </form>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+
+<a href="/staff">Return to Your Homepage</a>
+
+</body>
+
+
+</html>

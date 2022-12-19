@@ -323,8 +323,12 @@ def spending():
 def logout():
 	session.pop('username')
 	session.pop('userType')
-	session.pop('admin')
-	session.pop('operator')
+	if session.get('admin'):
+		if session['admin']:
+			session.pop("admin")
+	if session.get('operator'):
+		if session['operator']:
+			session.pop("operator")
 	return redirect('/')
 
 #Booking agent use cases
@@ -473,102 +477,106 @@ def customer_list():
 
 @app.route('/create_flights', methods=['GET', 'POST'])
 def create_flights():
-	if session["admin"] == "admin":
-		if request.method == 'POST':
-			flight_num = request.form["flight_num"]
-			departure_airport = request.form["departure_airport"]
-			departure_time = request.form["departure_time"]
-			arrival_airport = request.form["arrival_airport"]
-			arrival_time = request.form["arrival_time"]
-			price = request.form["price"]
-			status = request.form["status"]
-			airplane_ID = request.form["airplane_ID"]
-			cursor = conn.cursor()	
-			username = session["username"]
-			query = "select airline_name from airline_staff where username = '{}'"
-			cursor.execute(query.format(username))
-			airline_name = cursor.fetchone() [0]
-			query2 = "SELECT * FROM flight WHERE airline_name = '{}' and flight_num = {}"
-			cursor.execute(query2.format(airline_name, flight_num))
-			data = cursor.fetchall()
-			if data:
-				message = "This Flight Already Exists"
-				return render_template('create_flight.html', message = message)
-			ins = "INSERT INTO flight VALUES({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"
-			cursor.execute(ins.format(flight_num, airline_name, airplane_ID, departure_airport, arrival_airport, departure_time, arrival_time, price, status))
-			conn.commit()
-			cursor.close()
-			message = "Successfully Created A Flight!"
-			return render_template('create_flights.html', message = message)
-		else:
-			return render_template('create_flights.html', message = "Create A Flight")
+	if session.get('admin'):
+		if session['admin']:
+			if request.method == 'POST':
+				flight_num = request.form["flight_num"]
+				departure_airport = request.form["departure_airport"]
+				departure_time = request.form["departure_time"]
+				arrival_airport = request.form["arrival_airport"]
+				arrival_time = request.form["arrival_time"]
+				price = request.form["price"]
+				status = request.form["status"]
+				airplane_ID = request.form["airplane_ID"]
+				cursor = conn.cursor()	
+				username = session["username"]
+				query = "select airline_name from airline_staff where username = '{}'"
+				cursor.execute(query.format(username))
+				airline_name = cursor.fetchone() [0]
+				query2 = "SELECT * FROM flight WHERE airline_name = '{}' and flight_num = {}"
+				cursor.execute(query2.format(airline_name, flight_num))
+				data = cursor.fetchall()
+				if data:
+					message = "This Flight Already Exists"
+					return render_template('create_flight.html', message = message)
+				ins = "INSERT INTO flight VALUES({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"
+				cursor.execute(ins.format(flight_num, airline_name, airplane_ID, departure_airport, arrival_airport, departure_time, arrival_time, price, status))
+				conn.commit()
+				cursor.close()
+				message = "Successfully Created A Flight!"
+				return render_template('create_flights.html', message = message)
+			else:
+				return render_template('create_flights.html', message = "Create A Flight")
 	else:
 		return render_template('staff.html', message = "You do not have permission!")
 
 @app.route('/change_status', methods=['GET', 'POST'])
 def change_status():
-	if session["operator"] == "operator":
-		status = request.form['status']
-		flight_num = request.form['flight_num']
-		airline_name = request.form['airline_name']
-		cursor = conn.cursor()
-		query = "UPDATE flight SET status = '{}' WHERE flight_num = {} AND airline_name = '{}'"
-		cursor.execute(query.format(status, flight_num, airline_name))
-		conn.commit()
-		cursor.close()
-		return render_template('staff.html', message = "Status Updated")
+	if session.get('operator'):
+		if session['operator']:
+			status = request.form['status']
+			flight_num = request.form['flight_num']
+			airline_name = request.form['airline_name']
+			cursor = conn.cursor()
+			query = "UPDATE flight SET status = '{}' WHERE flight_num = {} AND airline_name = '{}'"
+			cursor.execute(query.format(status, flight_num, airline_name))
+			conn.commit()
+			cursor.close()
+			return render_template('staff.html', message = "Status Updated")
 	else:
 		return render_template('staff.html', message = "You do not have permission!")
 
 @app.route('/add_airplane', methods=['GET', 'POST'])
 def add_airplane():
-	if session["admin"] == "admin":
-		if request.method == 'POST':
-			airplane_ID = request.form["airplane_ID"]
-			num_of_seats = request.form['num_of_seats']
-			cursor = conn.cursor()	
-			username = session["username"]
-			query = "select airline_name from airline_staff where username = '{}'"
-			cursor.execute(query.format(username))
-			airline_name = cursor.fetchone() [0]
-			query2 = "SELECT * FROM airplane WHERE airplane_ID = {} and airline_name = '{}'"
-			cursor.execute(query2.format(airplane_ID, airline_name))
-			data = cursor.fetchall()
-			if data:
-				message = "This Airplane Already Exists"
+	if session.get('admin'):
+		if session['admin']:
+			if request.method == 'POST':
+				airplane_ID = request.form["airplane_ID"]
+				num_of_seats = request.form['num_of_seats']
+				cursor = conn.cursor()	
+				username = session["username"]
+				query = "select airline_name from airline_staff where username = '{}'"
+				cursor.execute(query.format(username))
+				airline_name = cursor.fetchone() [0]
+				query2 = "SELECT * FROM airplane WHERE airplane_ID = {} and airline_name = '{}'"
+				cursor.execute(query2.format(airplane_ID, airline_name))
+				data = cursor.fetchall()
+				if data:
+					message = "This Airplane Already Exists"
+					return render_template('add_airplane.html', message = message)
+				ins = "INSERT INTO airplane VALUES({}, '{}', {})"
+				cursor.execute(ins.format(airplane_ID, airline_name, num_of_seats))
+				conn.commit()
+				cursor.close()
+				message = "Successfully Added A Airplane!"
 				return render_template('add_airplane.html', message = message)
-			ins = "INSERT INTO airplane VALUES({}, '{}', {})"
-			cursor.execute(ins.format(airplane_ID, airline_name, num_of_seats))
-			conn.commit()
-			cursor.close()
-			message = "Successfully Added A Airplane!"
-			return render_template('add_airplane.html', message = message)
-		else:
-			return render_template('add_airplane.html', message = "Add A Airplane")
+			else:
+				return render_template('add_airplane.html', message = "Add A Airplane")
 	else:
 		return render_template('staff.html', message = "You do not have permission!")
 
 @app.route('/add_airport', methods=['GET', 'POST'])
 def add_airport():
-	if session["admin"] == "admin":
-		if request.method == 'POST':
-			airport_name = request.form["airport_name"]
-			city = request.form['city']
-			cursor = conn.cursor()	
-			query = "SELECT * FROM airport WHERE airport_name = '{}'"
-			cursor.execute(query.format(airport_name))
-			data = cursor.fetchall()
-			if data:
-				message = "This Airport Already Exists"
+	if session.get('admin'):
+		if session['admin']:
+			if request.method == 'POST':
+				airport_name = request.form["airport_name"]
+				city = request.form['city']
+				cursor = conn.cursor()	
+				query = "SELECT * FROM airport WHERE airport_name = '{}'"
+				cursor.execute(query.format(airport_name))
+				data = cursor.fetchall()
+				if data:
+					message = "This Airport Already Exists"
+					return render_template('add_airport.html', message = message)
+				ins = "INSERT INTO airport VALUES('{}', '{}')"
+				cursor.execute(ins.format(airport_name, city))
+				conn.commit()
+				cursor.close()
+				message = "Successfully Added A Airport!"
 				return render_template('add_airport.html', message = message)
-			ins = "INSERT INTO airport VALUES('{}', '{}')"
-			cursor.execute(ins.format(airport_name, city))
-			conn.commit()
-			cursor.close()
-			message = "Successfully Added A Airport!"
-			return render_template('add_airport.html', message = message)
-		else:
-			return render_template('add_airport.html', message = "Add A Airport")
+			else:
+				return render_template('add_airport.html', message = "Add A Airport")
 	else:
 		return render_template('staff.html', message = "You do not have permission!")
 
@@ -668,31 +676,56 @@ def top_destination():
 
 @app.route('/permission', methods=['GET', 'POST'])
 def permission():
-	if session["admin"] == "admin":
-		username = session['username']
-		cursor = conn.cursor()
-		query = "SELECT username FROM airline_staff WHERE username != '{}'"
-		cursor.execute(query.format(username))
-		data = cursor.fetchall()
-		message = "Grant Permission: "
-		if request.method == 'POST':
-			type = request.form['type']
-			email = request.form['username']
-			if type == "admin":
-				upd = "UPDATE airline_staff SET admin = true WHERE username = '{}'"
-				cursor.execute(upd.format(email))
-				conn.commit()
-				message = "Admin Granted to " + email
-			if type == "operator":
-				upd = "UPDATE airline_staff SET operator = true WHERE username = '{}'"
-				cursor.execute(upd.format(email))
-				conn.commit()
-				message = "Operator Granted to " + email
-		cursor.close()
-		return render_template('permission.html', data=data, message=message)
+	if session.get('admin'):
+		if session['admin']:
+			username = session['username']
+			cursor = conn.cursor()
+			query = "SELECT username FROM airline_staff WHERE username != '{}'"
+			cursor.execute(query.format(username))
+			data = cursor.fetchall()
+			message = "Grant Permission: "
+			if request.method == 'POST':
+				type = request.form['type']
+				email = request.form['username']
+				if type == "admin":
+					upd = "UPDATE airline_staff SET admin = true WHERE username = '{}'"
+					cursor.execute(upd.format(email))
+					conn.commit()
+					message = "Admin Granted to " + email
+				if type == "operator":
+					upd = "UPDATE airline_staff SET operator = true WHERE username = '{}'"
+					cursor.execute(upd.format(email))
+					conn.commit()
+					message = "Operator Granted to " + email
+			cursor.close()
+			return render_template('permission.html', data=data, message=message)
 	else: 
-		return render_template('permission.html', message = "You do not have permission!")
+		return render_template('staff.html', message = "You do not have permission!")
 
+@app.route('/add_agents', methods=['GET', 'POST'])
+def add_agents():
+	if session.get('admin'):
+		if session['admin']:
+			username = session['username']
+			cursor = conn.cursor()
+			query = "select airline_name from airline_staff where username = '{}'"
+			cursor.execute(query.format(username))
+			airline_name = cursor.fetchone() [0]
+			query = "SELECT booking_agent_email FROM booking_agent WHERE booking_agent_email NOT IN (SELECT booking_agent_email FROM works_with WHERE airline_name = '{}')"
+			cursor.execute(query.format(airline_name))
+			data = cursor.fetchall()
+			message = "Add Agents Not In Your Airline: "
+			if request.method == 'POST':
+				email = request.form['username']
+				ins = "INSERT INTO works_with VALUES ('{}', '{}')"
+				cursor.execute(ins.format(email, airline_name))
+				conn.commit()
+				message = "Added Agent " + email
+			cursor.close()
+			return render_template('add_agents.html', data=data, message=message)
+	else: 
+		return render_template('staff.html', message = "You do not have permission!")
+		
 @app.route('/refresh')
 def refresh():
 	return staff()
