@@ -1,0 +1,30 @@
+<html>
+<head>
+</head>
+<body>
+
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<text>The Total Amount Of Tickets Sold This {{t}} is {{total}}</text> <br> <br>
+
+<text>Revenue Earned From Direct Sales is {{customer}}</text> <br>
+<text>Revenue Earned From Indirect Sales is {{agent}}</text> <br> <br>
+
+<text>Specify a Range: </text>
+<form action="/view_reports" method="POST">
+    <select name="type">
+        <option value="year">Last Year </option>
+        <option value="month">Last Month</option>
+    </select>
+    <input type="submit" value = Submit />
+</form> <br>
+
+<a href="/staff">Return to Your Homepage</a>
+
+</body>
+
+</html>

@@ -323,6 +323,8 @@ def spending():
 def logout():
 	session.pop('username')
 	session.pop('userType')
+	session.pop('admin')
+	session.pop('operator')
 	return redirect('/')
 
 #Booking agent use cases
@@ -604,6 +606,49 @@ def view_customers():
 		flights = cursor.fetchall()
 	cursor.close()
 	return render_template("view_customers.html", top=top, flights=flights)
+
+@app.route('/view_reports', methods=['GET', 'POST'])
+def view_reports():
+	username = session['username']
+	t = ["Year"]
+	cursor = conn.cursor()
+	query = "select airline_name from airline_staff where username = '{}'"
+	cursor.execute(query.format(username))
+	airline_name = cursor.fetchone() [0]
+	query1 = "SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND DATEDiff(DATE(departure_time), CURDATE()) <= 365"
+	cursor.execute(query1.format(airline_name))
+	total = cursor.fetchone()
+	query = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 365"
+	cursor.execute(query.format(airline_name))
+	customer = cursor.fetchone()
+	query = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NOT NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 365"
+	cursor.execute(query.format(airline_name))
+	agent = cursor.fetchone()
+	if request.method == 'POST':
+		type = request.form['type']
+		if type == "month":
+			t = ["Month"]
+			query2 = "SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND DATEDiff(DATE(departure_time), CURDATE()) <= 30"
+			cursor.execute(query2.format(airline_name))
+			total = cursor.fetchone()
+			query = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 30"
+			cursor.execute(query.format(airline_name))
+			customer = cursor.fetchone()
+			query = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NOT NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 30"
+			cursor.execute(query.format(airline_name))
+			agent = cursor.fetchone()
+		if type == "year":
+			query1 = "SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND DATEDiff(DATE(departure_time), CURDATE()) <= 365"
+			cursor.execute(query1.format(airline_name))
+			total = cursor.fetchone()
+			query = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 365"
+			cursor.execute(query.format(airline_name))
+			customer = cursor.fetchone()
+			query = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NOT NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 365"
+			cursor.execute(query.format(airline_name))
+			agent = cursor.fetchone()
+	cursor.close()
+	return render_template("view_reports.html",total=total[0], customer=customer[0], agent=agent[0], t=t[0])
 
 @app.route('/refresh')
 def refresh():
