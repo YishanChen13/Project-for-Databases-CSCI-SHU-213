@@ -417,6 +417,37 @@ def top_customers():
 	top_commission = cursor.fetchall()
 	cursor.close()
 	return render_template("top_customers.html", top_count=top_count, top_commission=top_commission)
+
+#Airline staff use cases
+#--------------------------------------------------------------------------------------------------------------------------------------------
+@app.route('/staff', methods=['GET', 'POST'])
+def staff():
+	username = session['username']
+	userType = session['userType']
+	cursor = conn.cursor()
+	query = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status FROM airline_staff NATURAL JOIN flight where username = '{}' AND DATE(departure_time) between CURDATE() AND CURDATE()+30"
+	cursor.execute(query.format(username))
+	data = cursor.fetchall()
+	d=[30]
+	if request.method == 'POST':
+		start = request.form["start_date"]
+		end = request.form['end_date']
+		arrival = request.form['arrival']
+		departure = request.form['departure']
+		type = request.form['type']
+		if type == "city":
+			query2 = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status FROM airline_staff NATURAL JOIN flight WHERE username = '{}' AND departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) BETWEEN '{}' AND '{}'"
+			cursor.execute(query2.format(username, arrival, departure, start, end))
+			data = cursor.fetchall()
+		if type == "airport":
+			query2 = "SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status FROM airline_staff NATURAL JOIN flight WHERE username = '{}' AND departure_airport = '{}' AND arrival_airport = '{}' AND DATE(departure_time) BETWEEN '{}' AND '{}'"
+			cursor.execute(query2.format(username, arrival, departure, start, end))
+			data = cursor.fetchall()
+		query3 = "SELECT TIMESTAMPDIFF(DAY, '{}', '{}')"
+		cursor.execute(query3.format(start, end))
+		d = cursor.fetchone()
+	cursor.close()
+	return render_template('staff.html', username=username, data=data, d=d[0])
 	
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
