@@ -448,6 +448,19 @@ def staff():
 		d = cursor.fetchone()
 	cursor.close()
 	return render_template('staff.html', username=username, data=data, d=d[0])
+
+@app.route('/customer_list', methods=['GET', 'POST'])
+def customer_list():
+	username = session['username']
+	userType = session['userType']
+	flight_num = request.form['flight_num']
+	airline_name = request.form['airline_name']
+	cursor = conn.cursor()
+	query = "SELECT customer_email, name FROM customer NATURAL JOIN purchases NATURAL JOIN ticket WHERE flight_num = {} AND airline_name = '{}'"
+	cursor.execute(query.format(flight_num, airline_name))
+	data = cursor.fetchall()
+	cursor.close()
+	return render_template('customer_list.html', flight_num=flight_num, data=data)
 	
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

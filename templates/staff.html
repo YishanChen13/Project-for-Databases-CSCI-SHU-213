@@ -31,6 +31,13 @@
         <td>{{line[4]}}</td>
         <td>{{line[5]}}</td>
         <td>{{line[6]}}</td>
+        <form action="/customer_list", method = "POST">
+            <td>
+                <input type="hidden", name = "airline_name", value = "{{line[1]}}">
+                <input type="hidden", name = "flight_num", value = {{line[0]}}> 
+                <button type = "submit">View All Customers</button>
+            </td>
+        </form>
     </tr>
     {% endfor %}
 </table>

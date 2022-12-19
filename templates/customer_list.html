@@ -1,0 +1,29 @@
+<html>
+<head>
+</head>
+<body>
+
+<text>Customer List For Flight {{flight_num}}</text> <br>
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+
+<table>
+    <th>Customer Username</th>
+    <th>Customer Name</th>
+    {% for line in data %}
+    <tr>
+        <td>{{line[0]}}</td>
+        <td>{{line[1]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+
+
+
+</body>
+
+</html>
