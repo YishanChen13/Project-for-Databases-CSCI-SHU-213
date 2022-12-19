@@ -378,26 +378,26 @@ def commission():
 	userType = session['userType']
 	d = [30]
 	cursor = conn.cursor() 
-	query1 = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATEDIFF(CURDATE(), purchase_date) <= 30"
+	query1 = "SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATEDIFF(CURDATE(), DATE(departure_time)) <= 30"
 	cursor.execute(query1.format(username))
 	total = cursor.fetchone()
-	query2 = "SELECT AVG(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DateDiff(CURDATE(), purchase_date) <= 30"
+	query2 = "SELECT AVG(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DateDiff(CURDATE(), DATE(departure_time)) <= 30"
 	cursor.execute(query2.format(username))
 	average = cursor.fetchone()
-	query3 = "SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DateDiff(CURDATE(), purchase_date) <= 30"
+	query3 = "SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DateDiff(CURDATE(), DATE(departure_time)) <= 30"
 	cursor.execute(query3.format(username))
 	count = cursor.fetchone()
 
 	if request.method == 'POST':
 		start = request.form["start_date"]
 		end = request.form['end_date']
-		query4 = "SELECT sum(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and purchase_date between '{}' and '{}'"
+		query4 = "SELECT sum(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATE(departure_time) between '{}' and '{}'"
 		cursor.execute(query4.format(username, start, end))
 		total = cursor.fetchone()
-		query5 = "SELECT AVG(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and purchase_date between '{}' and '{}'"
+		query5 = "SELECT AVG(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATE(departure_time) between '{}' and '{}'"
 		cursor.execute(query5.format(username, start, end))
 		average = cursor.fetchone()
-		query6 = "SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and purchase_date between '{}' and '{}'"
+		query6 = "SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATE(departure_time) between '{}' and '{}'"
 		cursor.execute(query6.format(username, start, end))
 		count = cursor.fetchone()
 		query7 = "SELECT TIMESTAMPDIFF(DAY, '{}', '{}')"
@@ -414,7 +414,7 @@ def top_customers():
 	query1 = "SELECT customer_email, name, COUNT(*) FROM purchases NATURAL JOIN customer WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') AND DateDiff(CURDATE(), purchase_date) <= 365/2  GROUP BY customer_email ORDER BY count(*) DESC limit 5"
 	cursor.execute(query1.format(username))
 	top_count = cursor.fetchall()
-	query2 = "SELECT customer_email, name, SUM(price) FROM purchases NATURAL JOIN customer NATURAL JOIN flight NATURAL JOIN ticket WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') AND DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY customer_email ORDER BY sum(*) DESC limit 5"
+	query2 = "SELECT customer_email, name, SUM(price) FROM purchases NATURAL JOIN customer NATURAL JOIN flight NATURAL JOIN ticket WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') AND DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY customer_email ORDER BY sum(price) DESC limit 5"
 	cursor.execute(query2.format(username))
 	top_commission = cursor.fetchall()
 	cursor.close()
