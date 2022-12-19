@@ -1,0 +1,23 @@
+<html>
+<head>
+</head>
+<body>
+<text>{{message}}</text> <br> <br>
+<form action="/create_flights" method="POST">
+	<input type="number" name = "flight_num" placeholder="Flight Number" required/> </br>
+	<input type="text" name = "airplane_ID" placeholder="Airplane ID" required/> </br>
+	<input type="text" name = "departure_airport" placeholder="Departure Airport" required/> </br>
+	<input type="text" name = "arrival_airport" placeholder="Arrival Airport" required/> </br>
+	<input type="datetime-local" name = "departure_time" placeholder="Departure Time" required/> </br>
+	<input type="datetime-local" name = "arrival_time" placeholder="Arrival Time" required/> </br>
+	<input type="number" name = "price" placeholder="Price" required/> </br>
+	<input type="status" name = "status" placeholder="Status" required/> </br>
+	<input type="submit" value = "Create Flight" /> <br> <br>
+
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+
+<a href="/staff">Return to Your Homepage</a>
+</body>
+</html>

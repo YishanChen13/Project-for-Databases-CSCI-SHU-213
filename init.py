@@ -435,11 +435,13 @@ def staff():
 	a = cursor.fetchone()
 	if a[0] == 1:
 		admin = "Admin"
+		session['admin'] = "admin"
 	query2 = "SELECT operator from airline_staff WHERE username = '{}'"
 	cursor.execute(query2.format(username))
 	o = cursor.fetchone()
 	if o[0] == 1:
 		operator = "Operator"
+		session['operator'] = "operator"
 	d=[30]
 	if request.method == 'POST':
 		start = request.form["start_date"]
@@ -473,6 +475,40 @@ def customer_list():
 	data = cursor.fetchall()
 	cursor.close()
 	return render_template('customer_list.html', flight_num=flight_num, data=data)
+
+@app.route('/create_flights', methods=['GET', 'POST'])
+def create_flights():
+	if session["admin"] == "admin":
+		if request.method == 'POST':
+			flight_num = request.form["flight_num"]
+			departure_airport = request.form["departure_airport"]
+			departure_time = request.form["departure_time"]
+			arrival_airport = request.form["arrival_airport"]
+			arrival_time = request.form["arrival_time"]
+			price = request.form["price"]
+			status = request.form["status"]
+			airplane_ID = request.form["airplane_ID"]
+			cursor = conn.cursor()	
+			username = session["username"]
+			query = "select airline_name from airline_staff where username = '{}'"
+			cursor.execute(query.format(username))
+			airline_name = cursor.fetchone() [0]
+			query2 = "SELECT * FROM flight WHERE airline_name = '{}' and flight_num = {}"
+			cursor.execute(query2.format(airline_name, flight_num))
+			data = cursor.fetchall()
+			if data:
+				message = "This Flight Already Exists"
+				return render_template('create_flight.html', message = message)
+			ins = "INSERT INTO flight VALUES({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"
+			cursor.execute(ins.format(flight_num, airline_name, airplane_ID, departure_airport, arrival_airport, departure_time, arrival_time, price, status))
+			conn.commit()
+			cursor.close()
+			message = "Successfully Created A Flight!"
+			return render_template('create_flights.html', message = message)
+		else:
+			return render_template('create_flights.html', message = "Create A Flight")
+	else:
+		return render_template('staff.html', message = "You do not have permission!")
 	
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
