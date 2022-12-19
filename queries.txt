@@ -1,0 +1,149 @@
+QUERIES
+
+flight_info()
+-city case
+"SELECT * FROM flight WHERE departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
+-airport case
+"SELECT * FROM flight WHERE departure_airport = '{}' AND arrival_airport = '{}' AND DATE(departure_time) = DATE('{}')"
+
+flight_status()
+"SELECT status FROM flight WHERE flight_num = '{}' AND DATE(departure_time) = DATE('{}')"
+
+loginAuth()
+-customer case
+'SELECT * FROM customer WHERE customer_email = "{}" and password = md5("{}")'
+-booking agent case
+'SELECT * FROM booking_agent WHERE booking_agent_email = "{}" and password = md5("{}")'
+-airline staff case
+'SELECT * FROM airline_staff WHERE username = "{}" and password = md5("{}")'
+
+registerAuth()
+-primary key duplicate case
+"SELECT * FROM customer WHERE customer_email = '{}'"
+"SELECT * FROM booking_agent WHERE booking_agent_email = '{}'"
+"SELECT * FROM airline_staff WHERE username = '{}'"
+"SELECT * FROM airline WHERE airline_name = '{}'"
+-insert case
+"INSERT INTO customer VALUES({}, {}, md5('{}'), {}, {}, {}, {}, {}, {}, DATE('{}'), {}, DATE('{}'))"
+"INSERT INTO booking_agent VALUES('{}', {}, md5('{}'))"
+"INSERT INTO airline_staff VALUES('{}', '{}', md5('{}'), '{}', '{}', DATE('{}'))"
+
+customer()
+"SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status, ticket_id FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE customer_email = '{}' AND DATE(departure_time) > CURDATE()"
+
+flight_info_purchase()
+-city case
+"SELECT * FROM flight WHERE departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
+-airport case
+"SELECT * FROM flight WHERE departure_airport = '{}' AND arrival_airport = '{}' AND DATE(departure_time) = DATE('{}')"
+
+purchase()
+-check if seats full case
+"SELECT num_of_seats FROM airplane NATURAL JOIN flight WHERE flight.airline_name = '{}' and flight.flight_num = {}"
+"SELECT COUNT(*) FROM ticket WHERE airline_name = '{}' and flight_num = '{}'"
+-purchase case and increment ticket_id case
+"SELECT MAX(ticket_id) FROM ticket NATURAL JOIN flight WHERE flight.airline_name = '{}' and flight.flight_num = {}"
+"INSERT INTO ticket VALUES({}, '{}', {})"
+"INSERT INTO purchases VALUES({}, '{}', null, CURDATE())"
+"INSERT INTO purchases VALUES({}, '{}', (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}'), CURDATE())"
+
+spending()
+-default case
+"SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE customer_email = '{}' and DATEDIFF(CURDATE(), purchase_date) <= 365/2"
+"SELECT sum(price), month(purchase_date) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE purchases.customer_email = '{}' and DateDiff(CURDATE(), purchase_date) <= 365/2 group by MONTH(purchase_date)"
+-specific case
+"SELECT sum(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE customer_email = '{}' and purchase_date between '{}' and '{}'"
+"SELECT sum(price), month(purchase_date) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE customer_email = '{}' and purchase_date between '{}' and '{}' group by MONTH(purchase_date)"
+"SELECT TIMESTAMPDIFF(MONTH, '{}', '{}')"
+
+agent()
+"SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status, ticket_id, customer_email FROM purchases NATURAL JOIN ticket NATURAL JOIN flight NATURAL JOIN booking_agent WHERE booking_agent_email = '{}' AND DATE(departure_time) > CURDATE()"
+
+flight_info_purchase_b()
+-city case 
+"SELECT * FROM flight WHERE airline_name IN (SELECT airline_name FROM works_with where booking_agent_email = '{}') AND departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) = DATE('{}')"
+-airport case
+"SELECT * FROM flight WHERE airline_name IN (SELECT airline_name FROM works_with where booking_agent_email = '{}') AND WHERE departure_airport = '{}' AND arrival_airport = '{}' AND DATE(departure_time) = DATE('{}')"
+
+commission()
+-default case
+"SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATEDIFF(CURDATE(), DATE(departure_time)) <= 30"
+"SELECT AVG(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DateDiff(CURDATE(), DATE(departure_time)) <= 30"
+"SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DateDiff(CURDATE(), DATE(departure_time)) <= 30"
+-specific case
+"SELECT sum(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATE(departure_time) between '{}' and '{}'"
+"SELECT AVG(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATE(departure_time) between '{}' and '{}'"
+"SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') and DATE(departure_time) between '{}' and '{}'"
+"SELECT TIMESTAMPDIFF(DAY, '{}', '{}')"
+
+top_customers()
+"SELECT customer_email, name, COUNT(*) FROM purchases NATURAL JOIN customer WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') AND DateDiff(CURDATE(), purchase_date) <= 365/2  GROUP BY customer_email ORDER BY count(*) DESC limit 5"
+"SELECT customer_email, name, SUM(price) FROM purchases NATURAL JOIN customer NATURAL JOIN flight NATURAL JOIN ticket WHERE booking_agent_ID = (SELECT booking_agent_ID FROM booking_agent WHERE booking_agent_email = '{}') AND DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY customer_email ORDER BY sum(price) DESC limit 5"
+
+staff()
+"SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status FROM airline_staff NATURAL JOIN flight where username = '{}' AND DATE(departure_time) between CURDATE() AND CURDATE()+30"
+"SELECT admin from airline_staff WHERE username = '{}'"
+"SELECT operator from airline_staff WHERE username = '{}'"
+-city case
+"SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status FROM airline_staff NATURAL JOIN flight WHERE username = '{}' AND departure_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND arrival_airport = (SELECT airport_name FROM airport WHERE city = '{}') AND DATE(departure_time) BETWEEN '{}' AND '{}'"
+"SELECT flight_num, airline_name, departure_airport, arrival_airport, departure_time, arrival_time, status FROM airline_staff NATURAL JOIN flight WHERE username = '{}' AND departure_airport = '{}' AND arrival_airport = '{}' AND DATE(departure_time) BETWEEN '{}' AND '{}'"
+"SELECT TIMESTAMPDIFF(DAY, '{}', '{}')"
+
+customer_list()
+"SELECT customer_email, name FROM customer NATURAL JOIN purchases NATURAL JOIN ticket WHERE flight_num = {} AND airline_name = '{}'"
+
+create_flights()
+-check if duplicate
+"SELECT * FROM flight WHERE airline_name = '{}' and flight_num = {}"
+-create
+"INSERT INTO flight VALUES({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"
+
+change_status()
+"UPDATE flight SET status = '{}' WHERE flight_num = {} AND airline_name = '{}'"
+
+add_airplane()
+-check if duplicate
+"SELECT * FROM airplane WHERE airplane_ID = {} and airline_name = '{}'"
+-insert
+"INSERT INTO airplane VALUES({}, '{}', {})"
+
+add_aiport()
+-check if duplicate
+"SELECT * FROM airport WHERE airport_name = '{}'"
+-insert
+"INSERT INTO airport VALUES('{}', '{}')"
+
+top_agents()
+"SELECT booking_agent_email, booking_agent_ID, COUNT(*) FROM purchases NATURAL JOIN booking_agent NATURAL JOIN works_with WHERE airline_name = '{}' AND DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY booking_agent_ID, booking_agent_email ORDER BY count(*) DESC limit 5"
+"SELECT booking_agent_email, booking_agent_ID, SUM(price) FROM (SELECT booking_agent_email, booking_agent_ID, ticket_id, purchase_date FROM purchases NATURAL JOIN booking_agent NATURAL JOIN works_with WHERE airline_name = '{}') AS temp NATURAL JOIN ticket NATURAL JOIN flight WHERE DateDiff(CURDATE(), purchase_date) <= 365  GROUP BY booking_agent_ID, booking_agent_email ORDER BY SUM(price) DESC limit 5"
+
+view_customers()
+"SELECT customer_email, name, COUNT(DISTINCT(ticket_id)) FROM (SELECT DISTINCT(ticket_id), name, customer_email, departure_time FROM purchases NATURAL JOIN customer NATURAL JOIN flight WHERE airline_name = '{}') AS temp WHERE DateDiff(DATE(departure_time), CURDATE()) <= 365 GROUP BY customer_email, name ORDER BY COUNT(ticket_id) DESC limit 1"
+-specific customer case
+"SELECT flight_num, DATE(departure_time) FROM flight NATURAL JOIN ticket NATURAL JOIN purchases WHERE customer_email = '{}' AND airline_name = '{}' AND DateDiff(DATE(departure_time), CURDATE()) <= 365"
+
+view_reports()
+-default year case
+"SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND DATEDiff(DATE(departure_time), CURDATE()) <= 365"
+"SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 365"
+"SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NOT NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 365"
+-month case
+"SELECT COUNT(*) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND DATEDiff(DATE(departure_time), CURDATE()) <= 30"
+"SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 30"
+"SELECT SUM(price) FROM purchases NATURAL JOIN ticket NATURAL JOIN flight WHERE airline_name = '{}' AND booking_agent_ID IS NOT NULL AND DATEDIFF(DATE(departure_time), CURDATE()) <= 30"
+
+top_destination()
+"SELECT city, COUNT(city) FROM (ticket NATURAL JOIN flight) JOIN airport WHERE (arrival_airport = airport_name) AND airline_name = '{}' AND DATEDIFF(DATE(departure_time), CURDATE()) <= 365 GROUP BY city ORDER BY COUNT(city) DESC limit 3"
+"SELECT city, COUNT(city) FROM (ticket NATURAL JOIN flight) JOIN airport WHERE (arrival_airport = airport_name) AND airline_name = '{}' AND DATEDIFF(DATE(departure_time), CURDATE()) <= 90 GROUP BY city ORDER BY COUNT(city) DESC limit 3"
+
+permission()
+"SELECT username FROM airline_staff WHERE username != '{}'"
+-grant admin
+"UPDATE airline_staff SET admin = true WHERE username = '{}'"
+-grant operator
+"UPDATE airline_staff SET operator = true WHERE username = '{}'"
+
+add_agents()
+"SELECT booking_agent_email FROM booking_agent WHERE booking_agent_email NOT IN (SELECT booking_agent_email FROM works_with WHERE airline_name = '{}')"
+"INSERT INTO works_with VALUES ('{}', '{}')"
+
